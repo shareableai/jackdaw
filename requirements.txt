@@ -1,0 +1,9 @@
+joblib
+artefactlink==0.2.0
+pyarrow==9.0.0
+torch~=1.12.0
+gitpython
+pytest~=7.1.2
+scikit-learn~=1.1.1
+urllib3~=1.26.9
+setuptools~=60.2.0

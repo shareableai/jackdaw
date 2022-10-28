@@ -1,0 +1,6 @@
+venv/*
+**/__pycache__/**
+.vscode/*
+artefact.egg-info/
+pytest.ini
+.idea/**
