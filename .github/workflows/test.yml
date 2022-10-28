@@ -17,6 +17,8 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
+          # Preinstall Torch to avoid issue in Torch-Sparse
+          pip install torch
           pip install ".[all]"
       - name: Test with pytest
         env:
@@ -40,7 +42,7 @@ jobs:
         run: |
          python -m pip install --upgrade pip
          python -m pip install --upgrade setuptools wheel
-         pip install ".[all]"
+         pip install .
       - name: Upload to PyPi
         env:
          TWINE_USERNAME: '__token__'
