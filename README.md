@@ -4,7 +4,7 @@
 The core library is available on [PyPi](https://pypi.org/project/jackdaw/) and can be installed via pip;
 
 ```bash
->>> pip install jackdaw
+>>> pip install jackdaw_ml
 ```
 ## Setup - Sharing Models Remotely
 To share items remotely, you'll eventually need an account with ShareableAI. 
@@ -18,8 +18,8 @@ For now, you just need your API Token. If you don't have a token, reach out to `
 With simple models, saving the model can be as simple as specifying which items in a class should be saved.
 
 ```python
-from jackdaw.artefact_decorator import artefacts
-from jackdaw.serializers.pickle import PickleSerializer
+from jackdaw_ml.artefact_decorator import artefacts
+from jackdaw_ml.serializers.pickle import PickleSerializer
 
 @artefacts({PickleSerializer: "initially_true"})
 class ModelExample:

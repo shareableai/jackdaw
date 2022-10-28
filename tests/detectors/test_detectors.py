@@ -2,7 +2,7 @@ from typing import Any
 
 import pytest
 
-from jackdaw.detectors import is_type
+from jackdaw_ml.detectors import is_type
 
 
 @pytest.mark.parametrize(

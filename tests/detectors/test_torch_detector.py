@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 
-from jackdaw.artefact_decorator import artefacts, _has_children_or_artefacts
+from jackdaw_ml.artefact_decorator import artefacts, _has_children_or_artefacts
 
 
 @artefacts({})

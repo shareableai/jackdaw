@@ -6,7 +6,6 @@ pytest-cov
 pytest-asyncio
 coverage
 scikit-learn
-torch
 torchvision
 torch-geometric
 pytorch-lightning

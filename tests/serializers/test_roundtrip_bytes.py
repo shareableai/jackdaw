@@ -2,8 +2,8 @@ from itertools import product
 
 import pytest
 
-from jackdaw.serializers import Serializable
-from jackdaw.serializers.pickle import PickleSerializer
+from jackdaw_ml.serializers import Serializable
+from jackdaw_ml.serializers.pickle import PickleSerializer
 from tests.conftest import serializable_items
 
 serializers = [PickleSerializer]

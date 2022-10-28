@@ -1,7 +1,7 @@
 import pytest
 
-from jackdaw.artefact_decorator import *
-from jackdaw.serializers.pickle import PickleSerializer
+from jackdaw_ml.artefact_decorator import *
+from jackdaw_ml.serializers.pickle import PickleSerializer
 from tests.conftest import TEST_API_KEY
 
 ENDPOINT = ArtefactEndpoint.remote(TEST_API_KEY)

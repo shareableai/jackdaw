@@ -7,10 +7,10 @@ import torch.optim as optim
 from torch.optim.lr_scheduler import StepLR
 from torchvision import datasets, transforms
 
-from jackdaw.serializers.tensor import TorchSerializer
+from jackdaw_ml.serializers.tensor import TorchSerializer
 from tests.conftest import take_n
 
-from jackdaw.artefact_decorator import artefacts
+from jackdaw_ml.artefact_decorator import artefacts
 
 torch.manual_seed(0)
 torch.backends.cudnn.benchmark = False

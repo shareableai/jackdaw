@@ -1,5 +1,5 @@
 from setuptools import find_packages, setup
-from jackdaw import __name__, __version__
+from jackdaw_ml import __name__, __version__
 
 
 try:
