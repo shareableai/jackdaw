@@ -33,7 +33,10 @@ def get_current_hash(path=pathlib.Path.cwd(), parent_search: int = 0) -> VCSHash
         )
     try:
         return VCSHash(
-            str(repo.commit("HEAD")), list(map(lambda x: parse_url(str(x)), repo.remotes))
+            str(repo.commit("HEAD")),
+            list(map(lambda x: parse_url(str(x)), repo.remotes)),
         )
     except BadName:
-        return VCSHash("DirtyHashState", list(map(lambda x: parse_url(str(x)), repo.remotes)))
+        return VCSHash(
+            "DirtyHashState", list(map(lambda x: parse_url(str(x)), repo.remotes))
+        )

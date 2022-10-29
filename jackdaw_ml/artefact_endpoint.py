@@ -3,11 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Union
 
-from artefact_link import (
-    LocalEndpoint,
-    ShareableAIEndpoint,
-    LocalArtefactRegistry
-)
+from artefact_link import LocalEndpoint, ShareableAIEndpoint, LocalArtefactRegistry
 
 
 @dataclass
@@ -32,4 +28,8 @@ class ArtefactEndpoint:
         the SQLite server at ~/.artefact_registry and the storage at
         ~/.artefact_storage
         """
-        return ArtefactEndpoint(LocalEndpoint(registry_endpoint=LocalArtefactRegistry(None), storage_location=None))
+        return ArtefactEndpoint(
+            LocalEndpoint(
+                registry_endpoint=LocalArtefactRegistry(None), storage_location=None
+            )
+        )

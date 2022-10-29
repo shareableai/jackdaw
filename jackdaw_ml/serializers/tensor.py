@@ -33,7 +33,7 @@ class TorchSerializer(Serializable[torch.nn.Parameter]):
 
     @staticmethod
     def from_resource(
-            uninitialised_item: Optional[torch.nn.Parameter], buffer: Resource
+        uninitialised_item: Optional[torch.nn.Parameter], buffer: Resource
     ) -> torch.nn.Parameter:
         item_weight: pa.Tensor = TensorSerializer.from_resource(None, buffer)
         return torch.nn.Parameter(torch.from_numpy(item_weight.to_numpy()))

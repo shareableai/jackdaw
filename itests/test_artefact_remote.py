@@ -13,10 +13,7 @@ class ModelExample:
         self.m = 3
 
 
-@artefacts(
-    {PickleSerializer: ["m", "n"]},
-    endpoint=ENDPOINT
-)
+@artefacts({PickleSerializer: ["m", "n"]}, endpoint=ENDPOINT)
 class MultipleItem:
     def __init__(self) -> None:
         self.m = 3

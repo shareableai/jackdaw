@@ -1,4 +1,5 @@
 import logging
+import inspect
 import pathlib
 import tempfile
 from typing import (
@@ -23,6 +24,7 @@ from artefact_link import (
 
 from jackdaw_ml.artefact_endpoint import ArtefactEndpoint
 from jackdaw_ml.detectors import Detector
+from jackdaw_ml.detectors.child_architecture_detector import ChildArchitectureDetector
 from jackdaw_ml.resource import Resource
 from jackdaw_ml.serializers import Serializable
 from jackdaw_ml.vcs import get_current_hash
@@ -65,11 +67,11 @@ def _has_artefact(cls, name: str) -> bool:
 
 def _has_children_or_artefacts(cls) -> bool:
     return (
-                   hasattr(cls, "__artefact_slots__") and hasattr(cls, "__artefact_subclasses__")
-           ) and (
-                   len(getattr(cls, "__artefact_slots__")) > 0
-                   or len(getattr(cls, "__artefact_subclasses__")) > 0
-           )
+        hasattr(cls, "__artefact_slots__") and hasattr(cls, "__artefact_subclasses__")
+    ) and (
+        len(getattr(cls, "__artefact_slots__")) > 0
+        or len(getattr(cls, "__artefact_subclasses__")) > 0
+    )
 
 
 def _list_artefacts(cls) -> Iterable[str]:
@@ -88,7 +90,7 @@ def _list_artefacts(cls) -> Iterable[str]:
 
 
 def _load_artefact(
-        self, artefact_name: str, serializer: Type[Serializable], artefact: Resource
+    self, artefact_name: str, serializer: Type[Serializable], artefact: Resource
 ):
     storage_location = getattr(self, "__storage_location__")
     if storage_location == "__dict__":
@@ -116,15 +118,15 @@ def _add_children(self) -> None:
     items.
     """
     if (
-            not hasattr(self, "__artefact_subclasses__")
-            or getattr(self, "__artefact_subclasses__") is None
+        not hasattr(self, "__artefact_subclasses__")
+        or getattr(self, "__artefact_subclasses__") is None
     ):
         setattr(self, "__artefact_subclasses__", set())
     for artefact_name in _list_artefacts(self):
         for detector in getattr(self, "__detectors__"):
             if detector.is_child(_get_artefact(self, artefact_name)):
                 if artefact_name not in getattr(
-                        self, "__artefact_subclasses__"
+                    self, "__artefact_subclasses__"
                 ) or not hasattr(_get_artefact(self, artefact_name), "loads"):
                     _set_artefact(
                         self,
@@ -150,10 +152,10 @@ def _add_children(self) -> None:
 
 
 def _add_artefacts(
-        cls,
-        artefact_list: Dict[Type[Serializable], Union[List[str], str]],
-        detectors: List[Detector] = None,
-        storage_location: Optional[str] = None,
+    cls,
+    artefact_list: Dict[Type[Serializable], Union[List[str], str]],
+    detectors: List[Detector] = None,
+    storage_location: Optional[str] = None,
 ) -> None:
     """
     Indicate Artefacts on a Class
@@ -182,22 +184,22 @@ def _add_artefacts(
     if storage_location is None:
         storage_location = "__dict__"
     if (
-            not hasattr(cls, "__storage_location__")
-            or getattr(cls, "__storage_location__") is None
+        not hasattr(cls, "__storage_location__")
+        or getattr(cls, "__storage_location__") is None
     ):
         setattr(cls, "__storage_location__", storage_location)
     if hasattr(cls, "__detectors__") and getattr(cls, "__detectors__") is not None:
         detectors = detectors + getattr(cls, "__detectors__")
     if (
-            hasattr(cls, "__artefact_slots__")
-            and getattr(cls, "__artefact_slots__") is not None
+        hasattr(cls, "__artefact_slots__")
+        and getattr(cls, "__artefact_slots__") is not None
     ):
         listed_artefacts = getattr(cls, "__artefact_slots__")
     else:
         listed_artefacts = {}
     if (
-            hasattr(cls, "__artefact_subclasses__")
-            and getattr(cls, "__artefact_subclasses__") is not None
+        hasattr(cls, "__artefact_subclasses__")
+        and getattr(cls, "__artefact_subclasses__") is not None
     ):
         listed_artefact_classes = getattr(cls, "__artefact_subclasses__")
     else:
@@ -218,7 +220,7 @@ def _detect_artefacts(cls) -> None:
         return None
     detectors = getattr(cls, "__detectors__")
     if not hasattr(cls, "__artefact_slots__") or (
-            getattr(cls, "__artefact_slots__") is None
+        getattr(cls, "__artefact_slots__") is None
     ):
         listed_artefacts: Dict[str, Type[Serializable]] = {}
     else:
@@ -227,8 +229,8 @@ def _detect_artefacts(cls) -> None:
     for item_name in _list_artefacts(cls):
         for detector in detectors:
             if (
-                    detector.is_artefact(_get_artefact(cls, item_name))
-                    and item_name not in listed_artefacts
+                detector.is_artefact(_get_artefact(cls, item_name))
+                and item_name not in listed_artefacts
             ):
                 LOGGER.info(f"{item_name=} detected as artefact")
                 listed_artefacts[item_name] = detector.serializer
@@ -236,7 +238,7 @@ def _detect_artefacts(cls) -> None:
 
 
 def _add_dumps(
-        cls, endpoint: ArtefactEndpoint, auto_detect_artefacts: bool, model_name: str = None
+    cls, endpoint: ArtefactEndpoint, auto_detect_artefacts: bool, model_name: str = None
 ) -> None:
     """Add a `dumps` function to the class that provides a way to save the
     model artefacts to the indicated `store`.
@@ -263,7 +265,9 @@ def _add_dumps(
             self, "__artefact_slots__"
         )
         child_ids = {
-            child_name: getattr(self, child_name).dumps(getattr(self, child_name))
+            child_name: getattr(self, child_name).dumps()
+            if inspect.ismethod(getattr(self, child_name).dumps)
+            else getattr(self, child_name).dumps(getattr(self, child_name))
             for child_name in getattr(self, "__artefact_subclasses__")
         }
 
@@ -315,10 +319,15 @@ def _add_loads(cls, endpoint: ArtefactEndpoint, auto_detect_artefacts: bool) -> 
         )
         for child_name in getattr(self, "__artefact_subclasses__"):
             try:
-                _get_artefact(self, child_name).loads(
-                    _get_artefact(self, child_name),
-                    model_data.child_id_by_slot(child_name),
-                )
+                if inspect.ismethod(_get_artefact(self, child_name).loads):
+                    _get_artefact(self, child_name).loads(
+                        model_data.child_id_by_slot(child_name),
+                    )
+                else:
+                    _get_artefact(self, child_name).loads(
+                        _get_artefact(self, child_name),
+                        model_data.child_id_by_slot(child_name),
+                    )
             except RuntimeError:
                 pass
         for (artefact_name, serializer) in getattr(self, "__artefact_slots__").items():
@@ -334,14 +343,16 @@ def _add_loads(cls, endpoint: ArtefactEndpoint, auto_detect_artefacts: bool) -> 
 
 
 def _get_available_detectors() -> List[Detector]:
-    all_imports = []
+    all_imports = [ChildArchitectureDetector]
     try:
         from jackdaw_ml.detectors.torch import TorchDetector, TorchSeqDetector
+
         all_imports = all_imports + [TorchSeqDetector, TorchDetector]
     except (ImportError, NameError):
         pass
     try:
         from jackdaw_ml.detectors.torch_geo import TorchGeoSeqDetector
+
         all_imports = all_imports + [TorchGeoSeqDetector]
     except (ImportError, NameError):
         pass
@@ -351,11 +362,11 @@ def _get_available_detectors() -> List[Detector]:
 
 
 def artefacts(
-        artefact_serializers: Dict[Type[Serializable], Union[List[str], str]],
-        detectors: List[Detector] = None,
-        name: str = None,
-        metadata_slot_name: str = None,
-        endpoint: ArtefactEndpoint = ArtefactEndpoint.default(),
+    artefact_serializers: Dict[Type[Serializable], Union[List[str], str]],
+    detectors: List[Detector] = None,
+    name: str = None,
+    metadata_slot_name: str = None,
+    endpoint: ArtefactEndpoint = ArtefactEndpoint.default(),
 ) -> Callable[[Type[T]], Type[T]]:
     """
     Add Artefact Save & Load to a Model
