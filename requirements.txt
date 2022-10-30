@@ -1,7 +1,4 @@
-joblib
-artefactlink==0.2.0
+artefactlink>=0.2.2
 pyarrow==9.0.0
 gitpython
-scikit-learn~=1.1.1
 urllib3~=1.26.9
-setuptools==65.5.0

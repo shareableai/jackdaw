@@ -1,6 +1,7 @@
 venv/*
 **/__pycache__/**
 .vscode/*
-artefact.egg-info/
+jackdaw_ml.egg-info/*
 pytest.ini
 .idea/**
+**/build/lib/*

@@ -1,6 +1,4 @@
 from setuptools import find_packages, setup
-from jackdaw_ml import __name__, __version__
-
 
 try:
     requirements = open("requirements.txt").readlines()
@@ -15,12 +13,14 @@ except FileNotFoundError:
 LIBRARIES = [*requirements, *dev_requirements]
 
 setup(
-    name=__name__,
-    version=__version__,
+    name="jackdaw_ml",
+    version="0.0.1",
     packages=find_packages(),
     install_requires=requirements,
     extras_require={"dev": dev_requirements + requirements, "all": LIBRARIES},
     license='LGPL-3.0-or-later',
+    description="Share and Organise Machine Learning Models",
+    long_description=open("README.md").read(),
     classifiers=[
         'Development Status :: 3 - Alpha',
         'Intended Audience :: Developers',

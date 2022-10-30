@@ -1,6 +1,6 @@
 import pytest
 
-from jackdaw_ml.artefact_decorator import *
+from jackdaw_ml.artefact_decorator import artefacts, ArtefactNotFound
 from jackdaw_ml.serializers.pickle import PickleSerializer
 
 

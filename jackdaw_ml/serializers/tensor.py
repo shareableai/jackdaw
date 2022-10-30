@@ -9,6 +9,7 @@ from jackdaw_ml.resource import Resource
 from jackdaw_ml.serializers import Serializable
 
 from typing import TypeVar, Optional
+
 T = TypeVar("T")
 
 

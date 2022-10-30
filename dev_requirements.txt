@@ -1,13 +1,9 @@
-pytest
 black
-mypy
+pytest
 pytest-env
 pytest-cov
-pytest-asyncio
 coverage
 scikit-learn
+torch
 torchvision
 torch-geometric
-pytorch-lightning
-torch-sparse
-torch-scatter
