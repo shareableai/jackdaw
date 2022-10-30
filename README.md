@@ -14,7 +14,7 @@ The core library is available on [PyPi](https://pypi.org/project/jackdaw-ml/) an
 ## Setup - Sharing Models Remotely
 To share items remotely, you'll eventually need an account with ShareableAI. 
 
-For now, you just need your API Token. If you don't have a token, reach out to `lissa@shareablei.com` and they'll ping you one.  Add your token to a local config file (~/.shareableai/credentials), and you're good to go.
+For now, you just need your API Token. If you don't have a token, reach out to `lissa@shareablei.com` and they'll ping you one.
 
 ## Roadmap - Future Features
 [View our Public Roadmap here](https://github.com/orgs/shareableai/projects/1/views/1)
