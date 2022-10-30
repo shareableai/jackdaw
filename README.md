@@ -8,9 +8,14 @@ Documentation is baked into the repository, and is available [here](docs).
 ## Setup - Working Locally
 The core library is available on [PyPi](https://pypi.org/project/jackdaw-ml/) and can be installed via pip;
 
+
 ```bash
 >>> pip install jackdaw_ml
 ```
+
+### Alpha Support
+While Jackdaw is in Alpha, one of the libraries it relies upon - artefactlink - only supports Windows and Mac OS/X for Python 3.10. Linux support is available for 3.8, 3.9, and 3.10.
+
 ## Setup - Sharing Models Remotely
 To share items remotely, you'll eventually need an account with ShareableAI. 
 
