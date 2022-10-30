@@ -1,3 +1,5 @@
+__all__ = ["artefacts"]
+
 import logging
 import inspect
 import pathlib

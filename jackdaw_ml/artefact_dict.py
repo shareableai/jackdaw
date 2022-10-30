@@ -1,3 +1,5 @@
+__all__ = ["ArtefactDict"]
+
 from jackdaw_ml.artefact_decorator import artefacts
 
 _SYSTEM_ITEMS = [

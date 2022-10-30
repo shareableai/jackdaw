@@ -1,4 +1,5 @@
-from typing import TypeVar, Optional
+__all__ = ["TensorSerializer", "TorchSerializer"]
+
 
 import pyarrow as pa  # type: ignore
 import torch
@@ -7,6 +8,7 @@ from pyarrow import BufferOutputStream, BufferReader
 from jackdaw_ml.resource import Resource
 from jackdaw_ml.serializers import Serializable
 
+from typing import TypeVar, Optional
 T = TypeVar("T")
 
 

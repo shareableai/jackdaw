@@ -1,3 +1,5 @@
+__all__ = ["Serializable"]
+
 from abc import abstractmethod
 from typing import Generic, TypeVar, Optional
 

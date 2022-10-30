@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+__all__ = ["Resource"]
+
 import pathlib
 import tempfile
 from hashlib import md5

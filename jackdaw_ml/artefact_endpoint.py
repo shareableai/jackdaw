@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+__all__ = ["ArtefactEndpoint"]
+
 from dataclasses import dataclass
 from typing import Union
 

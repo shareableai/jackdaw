@@ -1,3 +1,5 @@
+__all__ = ["ChildModelDetector"]
+
 from abc import abstractmethod, ABCMeta
 from typing import Type, Any
 

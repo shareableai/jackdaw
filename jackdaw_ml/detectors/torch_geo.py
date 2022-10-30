@@ -1,3 +1,5 @@
+__all__ = ["TorchGeoSeqDetector"]
+
 from typing import Any, Type
 
 from jackdaw_ml.detectors import Detector, ChildModelDetector

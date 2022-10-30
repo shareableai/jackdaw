@@ -1,3 +1,5 @@
+__all__ = ["EntrypointArchitecture"]
+
 from jackdaw_ml.base_architecture import BaseArchitecture, DataGenerator
 
 

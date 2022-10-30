@@ -1,3 +1,5 @@
+__all__ = ["PickleSerializer"]
+
 import pickle
 from typing import TypeVar, Optional
 

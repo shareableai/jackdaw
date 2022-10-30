@@ -1,3 +1,5 @@
+__all__ = ["Detector"]
+
 from dataclasses import dataclass
 from typing import Set, TypeVar, Type, Generic, Any, Optional, Union
 
