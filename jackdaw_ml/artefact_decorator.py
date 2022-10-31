@@ -103,7 +103,7 @@ def _load_artefact(
         target_location,
         artefact_name,
         serializer.from_resource(
-            getattr(target_location, artefact_name),
+            getattr(target_location, artefact_name) if hasattr(target_location, artefact_name) else None,
             artefact,
         ),
     )

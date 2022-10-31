@@ -7,3 +7,5 @@ scikit-learn
 torch
 torchvision
 torch-geometric
+lightgbm
+xgboost
