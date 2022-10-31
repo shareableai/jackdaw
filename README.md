@@ -27,7 +27,7 @@ For now, you just need your API Token. If you don't have a token, reach out to `
 
 ## Getting Started Example
 
-Below we save a simple model with Jackdaw. Examples for PyTorch can be found in [our tests](itests/frameworks/pytorch.py), and more 
+Below we save a simple model with Jackdaw. Examples for PyTorch can be found in [our tests](itests/frameworks/test_pytorch.py), and more 
 information can be found in [our documentation](docs/save.md)
 
 ```python
