@@ -3,6 +3,11 @@ __all__ = ["Detector"]
 from dataclasses import dataclass
 from typing import Set, TypeVar, Type, Generic, Any, Optional, Union
 
+from jackdaw_ml.detectors.access_interface import (
+    AccessInterface,
+    DictAccessInterface,
+    DefaultAccessInterface,
+)
 from jackdaw_ml.detectors.class_detector import ChildModelDetector
 from jackdaw_ml.serializers import Serializable
 
@@ -60,6 +65,7 @@ class Detector(Generic[T]):
     child_models: Set[Union[Type[object], ChildModelDetector]]
     artefact_types: Set[Type[T]]
     serializer: Optional[Type[Serializable[T]]]
+    access_interface: Type[AccessInterface] = DefaultAccessInterface
     storage_location: Optional[str] = None
 
     def is_child(self, item: Any) -> bool:

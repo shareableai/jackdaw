@@ -7,7 +7,7 @@ _SYSTEM_ITEMS = [
     "loads",
     "__detectors__",
     "__artefact_slots__",
-    "__artefact_subclasses__",
+    "__artefact_children__",
     "__artefact_endpoint__",
     "__storage_location__",
 ]

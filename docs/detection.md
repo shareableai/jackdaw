@@ -4,7 +4,9 @@ each artefact on a class, but may need some tweaking for models that they haven'
 
 Examples of using Detectors are available in [docs/save](./save.md).
 
-New detectors can be created using the generic `Detector` initialiser, which requires up to 4 components; 
+
+## Creating a Detector
+New detectors can be created using the generic `Detector` initialiser, which requires up to 4 components;
 
 ```python
 from dataclasses import dataclass
@@ -118,3 +120,18 @@ to find objects that class holds, such as `_modules`, or any other location.
 
 
 You can then use your detector like any other detector in calls to @artefacts.
+
+
+## Adding a Detector as a Default
+
+```python
+from jackdaw_ml.detectors import Detector
+from jackdaw_ml.detectors.hook import DefaultDetectors, DetectionLevel
+
+MyDetector = Detector(...)
+DefaultDetectors.add_detector(MyDetector, DetectionLevel.Generic)
+```
+
+When providing detectors to `artefacts`, the order of Detectors can impact what is detected. If at any point a detector
+flags an item, subsequent detectors will ignore it, even if they also detect it. When adding a DefaultDetector, there are 
+two main order levels - Generic, and Specific. Specific Detectors will be loaded first, followed by Generic Detectors.

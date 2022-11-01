@@ -7,6 +7,7 @@ import torch.optim as optim
 from torch.optim.lr_scheduler import StepLR
 from torchvision import datasets, transforms
 
+from jackdaw_ml.detectors.torch import TorchSeqDetector, TorchDetector
 from jackdaw_ml.serializers.tensor import TorchSerializer
 from tests.conftest import take_n
 
@@ -17,7 +18,7 @@ torch.backends.cudnn.benchmark = False
 torch.use_deterministic_algorithms(True)
 
 
-@artefacts({TorchSerializer: ["conv1", "conv2", "fc1", "fc2"]})
+@artefacts({TorchSerializer: ["conv1", "conv2", "fc1", "fc2"]}, detectors=None)
 class Net(nn.Module):
     def __init__(self):
         super(Net, self).__init__()
@@ -99,13 +100,13 @@ def eval(model, device, test_loader) -> List[float]:
 def assert_model_equivalence(model: torch.nn.Module, model_two: torch.nn.Module):
     assert (
         len(model_two.__artefact_slots__.keys()) > 0
-        or len(model_two.__artefact_subclasses__) > 0
+        or len(model_two.__artefact_children__) > 0
     )
-    for submodel_name in model_two.__artefact_subclasses__:
+    for submodel_name in model_two.__artefact_children__:
         submodel = getattr(model, submodel_name)
         assert (
             len(submodel.__artefact_slots__.keys()) > 0
-            or len(submodel.__artefact_subclasses__) > 0
+            or len(submodel.__artefact_children__) > 0
         )
         sub_loaded_model = getattr(model_two, submodel_name)
         for artefact_name in submodel.__artefact_slots__.keys():

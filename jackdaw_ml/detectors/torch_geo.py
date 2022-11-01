@@ -2,10 +2,11 @@ __all__ = ["TorchGeoSeqDetector"]
 
 from typing import Any, Type
 
-from jackdaw_ml.detectors import Detector, ChildModelDetector
+from jackdaw_ml.detectors import Detector
+from jackdaw_ml.detectors.class_detector import ChildModelDetector
+from jackdaw_ml.detectors.hook import DefaultDetectors, DetectionLevel
 from jackdaw_ml.serializers.tensor import TorchSerializer
 
-import torch_geometric.nn as nn_geo
 import torch.nn as nn
 
 
@@ -28,3 +29,5 @@ TorchGeoSeqDetector = Detector(
     serializer=TorchSerializer,
     storage_location="_modules",
 )
+
+DefaultDetectors.add_detector(TorchGeoSeqDetector, DetectionLevel.Specific)

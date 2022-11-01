@@ -9,3 +9,4 @@ torchvision
 torch-geometric
 lightgbm
 xgboost
+tensorflow[cpu]
