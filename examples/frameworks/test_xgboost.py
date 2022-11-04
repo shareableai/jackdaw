@@ -13,8 +13,8 @@ from functools import lru_cache
 @artefacts({PickleSerializer: ['model']})
 class BasicXGBWrapper:
     """
-    LightGBM is zipsafe, so there's no real issue with using PickleSerializer over the Booster objects it provided.
-    For better performance, you can construct a custom LGB serializer.
+    XGBoost is zipsafe, so there's no real issue with using PickleSerializer over the Booster objects it provided.
+    For better performance, you can construct a custom XGB serializer.
     """
     booster: xgb.Booster
 

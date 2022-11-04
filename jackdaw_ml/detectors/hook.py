@@ -40,7 +40,9 @@ class DefaultDetectors:
         except ImportError:
             pass
         try:
-            from jackdaw_ml.detectors.child_architecture_detector import ChildArchitectureDetector
+            from jackdaw_ml.detectors.child_architecture_detector import (
+                ChildArchitectureDetector,
+            )
         except ImportError:
             pass
         return (

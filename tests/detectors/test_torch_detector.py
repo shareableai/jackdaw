@@ -1,8 +1,9 @@
 import torch
 import torch.nn as nn
 
-from jackdaw_ml.artefact_decorator import artefacts, _has_children_or_artefacts
+from jackdaw_ml.artefact_decorator import artefacts, SupportsArtefacts
 from jackdaw_ml.debugging import artefact_debug
+from jackdaw_ml.trace import trace_artefacts
 
 
 @artefacts({})
@@ -15,10 +16,11 @@ def test_sequential():
     x = Model()
     model_id = x.dumps()
     assert len(x.__artefact_children__) == 1
-    assert _has_children_or_artefacts(x.seq_model._modules["0"])
-    assert not _has_children_or_artefacts(x.seq_model._modules["1"])
+    assert isinstance(x.seq_model._modules["0"], SupportsArtefacts)
+    assert isinstance(x.seq_model._modules["1"], SupportsArtefacts)
+    assert len(x.seq_model._modules["1"].__artefact_children__) == 0
+    assert len(x.seq_model._modules["1"].__artefact_slots__) == 0
 
     y = Model()
     y.loads(model_id)
-    print(artefact_debug(y))
     assert torch.equal(x.seq_model._modules["0"].bias, y.seq_model._modules["0"].bias)

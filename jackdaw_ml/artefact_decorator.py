@@ -1,4 +1,6 @@
-__all__ = ["artefacts"]
+from __future__ import annotations
+
+__all__ = ["artefacts", "SupportsArtefacts"]
 
 import logging
 import inspect
@@ -14,6 +16,9 @@ from typing import (
     Any,
     Optional,
     Iterable,
+    Protocol,
+    Set,
+    runtime_checkable,
 )
 from uuid import uuid4
 
@@ -26,7 +31,10 @@ from artefact_link import (
 
 from jackdaw_ml.artefact_endpoint import ArtefactEndpoint
 from jackdaw_ml.detectors import Detector
-from jackdaw_ml.detectors.access_interface import AccessInterface, DefaultAccessInterface
+from jackdaw_ml.detectors.access_interface import (
+    AccessInterface,
+    DefaultAccessInterface,
+)
 from jackdaw_ml.detectors.hook import DefaultDetectors
 from jackdaw_ml.resource import Resource
 from jackdaw_ml.serializers import Serializable
@@ -45,18 +53,28 @@ class ArtefactNotFound(AttributeError):
     pass
 
 
-def _get_artefact(cls, name: str) -> Any:
-    access_interface: Type[AccessInterface] = getattr(cls, "__access_interface__")
-    storage_location: Optional[str] = getattr(cls, "__storage_location__")
+@runtime_checkable
+class SupportsArtefacts(Protocol):
+    __artefact_endpoint__: ArtefactEndpoint
+    __artefact_slots__: Dict[str, Type[Serializable]]
+    __artefact_children__: Set[str]
+    __access_interface__: Type[AccessInterface]
+    __storage_location__: Optional[str]
+    __detectors__: List[Detector]
+
+
+def _get_artefact(cls: SupportsArtefacts, name: str) -> Any:
+    access_interface: Type[AccessInterface] = cls.__access_interface__
+    storage_location: Optional[str] = cls.__storage_location__
     if storage_location is None or storage_location == "__dict__":
         return access_interface.get_item(cls, name)
     else:
         return access_interface.get_item(getattr(cls, storage_location), name)
 
 
-def _set_artefact(cls, name: str, value) -> None:
-    access_interface: Type[AccessInterface] = getattr(cls, "__access_interface__")
-    storage_location: Optional[str] = getattr(cls, "__storage_location__")
+def _set_artefact(cls: SupportsArtefacts, name: str, value) -> None:
+    access_interface: Type[AccessInterface] = cls.__access_interface__
+    storage_location: Optional[str] = cls.__storage_location__
     if storage_location is None or storage_location == "__dict__":
         return access_interface.set_item(cls, name, value)
     else:
@@ -70,23 +88,14 @@ def _has_artefact(cls, name: str) -> bool:
         return False
 
 
-def _has_children_or_artefacts(cls) -> bool:
-    return (
-        hasattr(cls, "__artefact_slots__") and hasattr(cls, "__artefact_children__")
-    ) and (
-        len(getattr(cls, "__artefact_slots__")) > 0
-        or len(getattr(cls, "__artefact_children__")) > 0
-    )
-
-
-def _list_potential_artefacts(cls) -> Iterable[str]:
+def _list_potential_artefacts(cls: SupportsArtefacts) -> Iterable[str]:
     """
     Iterate through all (potential) artefact items on a class
     """
-    storage_location: str = getattr(cls, "__storage_location__")
-    access_interface: Type[AccessInterface] = getattr(cls, "__access_interface__")
+    storage_location: str = cls.__storage_location__
+    access_interface: Type[AccessInterface] = cls.__access_interface__
     if storage_location == "__dict__" or storage_location is None:
-        return access_interface.keys(cls)
+        return access_interface.keys(cls)  # type: ignore
     else:
         return access_interface.keys(getattr(cls, storage_location))
 
@@ -106,7 +115,7 @@ def _load_artefact(
     )
 
 
-def _add_children(self) -> None:
+def _add_children(self: SupportsArtefacts) -> None:
     """
     Recursively add Model Children to Model Class
 
@@ -120,21 +129,21 @@ def _add_children(self) -> None:
         not hasattr(self, "__artefact_children__")
         or getattr(self, "__artefact_children__") is None
     ):
-        setattr(self, "__artefact_children__", set())
+        self.__artefact_children__ = set()
     for artefact_name in _list_potential_artefacts(self):
-        for detector in getattr(self, "__detectors__"):
+        for detector in self.__detectors__:
             if detector.is_child(_get_artefact(self, artefact_name)):
-                if artefact_name not in getattr(
-                    self, "__artefact_children__"
-                ) or not hasattr(_get_artefact(self, artefact_name), "loads"):
+                if artefact_name not in self.__artefact_children__ or not hasattr(
+                    _get_artefact(self, artefact_name), "loads"
+                ):
                     _set_artefact(
                         self,
                         artefact_name,
                         artefacts(
                             {},
-                            detectors=getattr(self, "__detectors__"),
+                            detectors=self.__detectors__,
                             metadata_slot_name=detector.storage_location,
-                            access_interface=detector.access_interface
+                            access_interface=detector.access_interface,
                         )(_get_artefact(self, artefact_name)),
                     )
                     # Recursively detect artefacts for newly created model child
@@ -145,14 +154,20 @@ def _add_children(self) -> None:
                     _add_children(_get_artefact(self, artefact_name))
                     # New Model Child isn't detected as a child fully until it's established that the child has
                     #   artefacts or children of its own, otherwise it's meaningless to track it.
-                    if _has_children_or_artefacts(_get_artefact(self, artefact_name)):
+                    potential_child = _get_artefact(self, artefact_name)
+                    #if str(potential_child.__class__) == "<class 'torch.nn.modules.transformer.TransformerDecoder'>":
+                    #    breakpoint()
+                    if isinstance(potential_child, SupportsArtefacts) and (
+                        len(potential_child.__artefact_children__) > 0
+                        or len(potential_child.__artefact_slots__) > 0
+                    ):
                         LOGGER.info(
-                            f"Detected {artefact_name=} - {_get_artefact(self, artefact_name)=} as child using {detector}"
+                            f"Detected {artefact_name=} - {potential_child=} as child using {detector}"
                         )
                         # Remove from tracking as Artefact, track as subclass
-                        getattr(self, "__artefact_children__").add(artefact_name)
-                        if artefact_name in getattr(self, "__artefact_slots__"):
-                            getattr(self, "__artefact_slots__").pop(artefact_name)
+                        self.__artefact_children__.add(artefact_name)
+                        if artefact_name in self.__artefact_slots__:
+                            self.__artefact_slots__.pop(artefact_name)
 
 
 def _add_artefacts(
@@ -330,6 +345,13 @@ def _add_loads(cls, endpoint: ArtefactEndpoint, auto_detect_artefacts: bool) -> 
             artefact_schema_id=model_id.artefact_schema_id,
             endpoint=endpoint.endpoint,
         )
+        for (artefact_name, serializer) in getattr(self, "__artefact_slots__").items():
+            _load_artefact(
+                self,
+                artefact_name,
+                serializer,
+                Resource.from_artefact(model_data.artefact_by_slot(artefact_name)),
+            )
         for child_name in getattr(self, "__artefact_children__"):
             try:
                 if inspect.ismethod(_get_artefact(self, child_name).loads):
@@ -343,13 +365,7 @@ def _add_loads(cls, endpoint: ArtefactEndpoint, auto_detect_artefacts: bool) -> 
                     )
             except RuntimeError:
                 pass
-        for (artefact_name, serializer) in getattr(self, "__artefact_slots__").items():
-            _load_artefact(
-                self,
-                artefact_name,
-                serializer,
-                Resource.from_artefact(model_data.artefact_by_slot(artefact_name)),
-            )
+
 
     if not hasattr(cls, "loads"):
         setattr(cls, "loads", loads)
@@ -389,7 +405,9 @@ def artefacts(
         auto_detect_artefacts = False
 
     def artefact_decorator(cls: Type[T]) -> Type[T]:
-        _add_artefacts(cls, artefact_serializers, detectors, metadata_slot_name, access_interface)
+        _add_artefacts(
+            cls, artefact_serializers, detectors, metadata_slot_name, access_interface
+        )
         _add_dumps(cls, endpoint, auto_detect_artefacts, model_name=name)
         _add_loads(cls, endpoint, auto_detect_artefacts)
         return cls

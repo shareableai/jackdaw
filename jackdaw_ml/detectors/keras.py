@@ -17,7 +17,14 @@ class KerasLayerAccessInterface(AccessInterface[List[tf.Variable], tf.Variable])
     @staticmethod
     def get_index(container: List[tf.Variable], key: str) -> int:
         index = next(
-            iter([i for (i, c) in enumerate(container) if f"{KerasLayerAccessInterface.get_name(c, i)}" == key]), None
+            iter(
+                [
+                    i
+                    for (i, c) in enumerate(container)
+                    if f"{KerasLayerAccessInterface.get_name(c, i)}" == key
+                ]
+            ),
+            None,
         )
         if index is None:
             raise KeyError(f"Could not find {key} on container")
@@ -25,8 +32,8 @@ class KerasLayerAccessInterface(AccessInterface[List[tf.Variable], tf.Variable])
 
     @staticmethod
     def get_name(container_item: tf.Variable, index: int) -> str:
-        segments: List[str] = container_item.name.split('/', 2)
-        name_component = segments[0].split('_')[0]
+        segments: List[str] = container_item.name.split("/", 2)
+        name_component = segments[0].split("_")[0]
         if len(segments) > 1:
             return f"{name_component}_{index}/{segments[1]}"
         else:
@@ -42,7 +49,10 @@ class KerasLayerAccessInterface(AccessInterface[List[tf.Variable], tf.Variable])
 
     @staticmethod
     def items(container: List[tf.Variable]) -> Dict[str, tf.Variable]:
-        return {KerasLayerAccessInterface.get_name(c, index): c for (index, c) in enumerate(container)}
+        return {
+            KerasLayerAccessInterface.get_name(c, index): c
+            for (index, c) in enumerate(container)
+        }
 
     @staticmethod
     def from_dict(d: Dict[str, tf.Variable]) -> List[tf.Variable]:

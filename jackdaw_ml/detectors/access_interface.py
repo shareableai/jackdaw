@@ -1,9 +1,12 @@
 import inspect
+import logging
 from abc import ABC
-from typing import Generic, TypeVar, List, Dict
+from typing import Generic, TypeVar, List, Dict, Optional
 
 C = TypeVar("C")
 T = TypeVar("T")
+
+logger = logging.getLogger(__name__)
 
 
 class AccessInterface(ABC, Generic[C, T]):
@@ -54,8 +57,17 @@ class DefaultAccessInterface(AccessInterface[Dict[str, T], T]):
         ]
 
     @staticmethod
-    def get_item(container: Dict[str, T], key: str) -> T:
-        return getattr(container, key)
+    def get_item(container: Dict[str, T], key: str) -> Optional[T]:
+        # When accessing attributes, it's tricky to tell the difference between properties that will behave like
+        #   functions, and actual attributes that contain values. Ignoring classes that happen to act like functions
+        #   isn't viable either - i.e. Torch Modules are classes that have a __call__ property so that they can act like
+        #   functions.
+        try:
+            item = getattr(container, key)
+        except RuntimeError:
+            logger.warning(f"Accessing {key} on {container} caused a runtime error")
+            return None
+        return item
 
     @staticmethod
     def set_item(container: Dict[str, T], key: str, value: T) -> None:

@@ -5,8 +5,10 @@ pytest-cov
 coverage
 scikit-learn
 torch
+pytorch-lightning
 torchvision
 torch-geometric
 lightgbm
 xgboost
 tensorflow[cpu]
+darts
