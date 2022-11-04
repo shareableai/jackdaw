@@ -34,6 +34,7 @@ information can be found in [our documentation](docs/save.md)
 from jackdaw_ml.artefact_decorator import artefacts
 from jackdaw_ml.serializers.pickle import PickleSerializer
 from jackdaw_ml.child_architecture import ChildArchitecture
+from jackdaw_ml.trace import trace_artefacts
 
 @artefacts({PickleSerializer: ["x"]})
 class MySubModel(ChildArchitecture):
@@ -52,6 +53,16 @@ model = MyModel()
 model.y.x = 4
 # Save the model
 model_id = model.dumps()
+
+# # Current Artefacts on Model can be seen by calling `trace_artefacts`
+# >>> trace_artefacts(model)
+# <class '__main__.MyModel'>{
+#        (y) <class '__main__.MySubModel'>{
+#                (x) [<class 'jackdaw_ml.serializers.pickle.PickleSerializer'>]
+#        }
+#
+# MyModel holds a child model on attribute 'y' called MySubModel, which contains a PickleSerialize'd artefact on 
+#   attribute `x`
 
 # Create another model
 new_model = MyModel()
