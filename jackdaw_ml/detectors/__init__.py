@@ -3,9 +3,8 @@ __all__ = ["Detector"]
 from dataclasses import dataclass
 from typing import Set, TypeVar, Type, Generic, Any, Optional, Union
 
-from jackdaw_ml.detectors.access_interface import (
+from jackdaw_ml.access_interface import (
     AccessInterface,
-    DictAccessInterface,
     DefaultAccessInterface,
 )
 from jackdaw_ml.detectors.class_detector import ChildModelDetector

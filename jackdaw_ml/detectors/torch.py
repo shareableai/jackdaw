@@ -2,7 +2,7 @@ __all__ = ["TorchSeqDetector", "TorchDetector"]
 
 
 from jackdaw_ml.detectors import Detector
-from jackdaw_ml.detectors.access_interface import DictAccessInterface
+from jackdaw_ml.access_interface import DictAccessInterface
 from jackdaw_ml.detectors.hook import DefaultDetectors, DetectionLevel
 from jackdaw_ml.serializers.tensor import TorchSerializer
 

@@ -2,8 +2,8 @@ __all__ = ["TorchLightningDetector"]
 
 
 from jackdaw_ml.detectors import Detector
-from jackdaw_ml.detectors.access_interface import DictAccessInterface
-from jackdaw_ml.detectors.hook import DefaultDetectors, DetectionLevel
+from jackdaw_ml.access_interface import DictAccessInterface
+from jackdaw_ml.detectors.hook import DefaultDetectors
 from jackdaw_ml.serializers.tensor import TorchSerializer
 
 import pytorch_lightning as pl
@@ -14,7 +14,7 @@ TorchLightningDetector = Detector(
     artefact_types={nn.Parameter},
     serializer=TorchSerializer,
     access_interface=DictAccessInterface,
-    storage_location='_modules'
+    storage_location="_modules",
 )
 
 DefaultDetectors.add_detector(TorchLightningDetector)

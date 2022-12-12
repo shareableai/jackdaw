@@ -2,6 +2,9 @@ import logging
 import os
 from typing import *
 
+
+from jackdaw_ml.artefact_endpoint import ArtefactEndpoint
+
 FORMAT = "%(levelname)s %(name)s %(asctime)-15s %(filename)s:%(lineno)d %(message)s"
 logging.basicConfig(format=FORMAT)
 logging.getLogger().setLevel(logging.INFO)
@@ -16,6 +19,11 @@ serializable_items = [
     set(list(range(10_000))),
     {"a": [1, 2, 3]},
 ]
+
+
+
+def remote_endpoint() -> ArtefactEndpoint:
+    return ArtefactEndpoint.remote(TEST_API_KEY)
 
 
 def take_n(a: Iterable[T], items: int) -> Iterator[T]:

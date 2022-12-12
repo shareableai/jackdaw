@@ -1,4 +1,4 @@
-artefactlink>=0.2.2
 pyarrow==9.0.0
+#artefactlink>=0.2.2
 gitpython
 urllib3~=1.26.9

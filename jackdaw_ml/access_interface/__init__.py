@@ -1,3 +1,5 @@
+__all__ = ['AccessInterface', 'DefaultAccessInterface', 'DictAccessInterface']
+
 import inspect
 import logging
 from abc import ABC
@@ -82,19 +84,4 @@ class DefaultAccessInterface(AccessInterface[Dict[str, T], T]):
         return d
 
 
-class DictAccessInterface(AccessInterface[Dict[str, T], T]):
-    @staticmethod
-    def get_item(container: Dict[str, T], key: str) -> T:
-        return container[key]
-
-    @staticmethod
-    def set_item(container: Dict[str, T], key: str, value: T) -> None:
-        container[key] = value
-
-    @staticmethod
-    def items(container: Dict[str, T]) -> Dict[str, T]:
-        return container
-
-    @staticmethod
-    def from_dict(d: Dict[str, T]) -> Dict[str, T]:
-        return d
+from jackdaw_ml.access_interface.dict_interface import DictAccessInterface

@@ -1,11 +1,13 @@
 from __future__ import annotations
 
-__all__ = ["artefacts", "SupportsArtefacts"]
+__all__ = ["artefacts", "SupportsArtefacts", "find_artefacts"]
 
 import logging
 import inspect
 import pathlib
 import tempfile
+
+from functools import partial
 from typing import (
     Type,
     List,
@@ -31,14 +33,15 @@ from artefact_link import (
 
 from jackdaw_ml.artefact_endpoint import ArtefactEndpoint
 from jackdaw_ml.detectors import Detector
-from jackdaw_ml.detectors.access_interface import (
+from jackdaw_ml.access_interface import (
     AccessInterface,
     DefaultAccessInterface,
 )
 from jackdaw_ml.detectors.hook import DefaultDetectors
+from jackdaw_ml.metric_logging import MetricLogger
 from jackdaw_ml.resource import Resource
 from jackdaw_ml.serializers import Serializable
-from jackdaw_ml.vcs import get_current_hash
+from jackdaw_ml.vcs import get_vcs_info
 
 T = TypeVar("T")
 LOGGER = logging.getLogger(__name__)
@@ -155,7 +158,7 @@ def _add_children(self: SupportsArtefacts) -> None:
                     # New Model Child isn't detected as a child fully until it's established that the child has
                     #   artefacts or children of its own, otherwise it's meaningless to track it.
                     potential_child = _get_artefact(self, artefact_name)
-                    #if str(potential_child.__class__) == "<class 'torch.nn.modules.transformer.TransformerDecoder'>":
+                    # if str(potential_child.__class__) == "<class 'torch.nn.modules.transformer.TransformerDecoder'>":
                     #    breakpoint()
                     if isinstance(potential_child, SupportsArtefacts) and (
                         len(potential_child.__artefact_children__) > 0
@@ -262,6 +265,18 @@ def _detect_artefacts(cls) -> None:
     setattr(cls, "__artefact_slots__", listed_artefacts)
 
 
+def _add_logger(cls, endpoint: ArtefactEndpoint) -> None:
+    def _log_metric(self, metric_name: str, metric_value: float) -> None:
+        if not hasattr(self, "_logger"):
+            model_uuid = uuid4()
+            setattr(self, "_model_uuid", model_uuid)
+            setattr(cls, "_logger", MetricLogger(getattr(cls, "__model_name__"), model_uuid, endpoint))
+        with getattr(self, "_logger") as logger:
+            logger.log(metric_name, metric_value)
+
+    setattr(cls, "_log_metric", _log_metric)
+
+
 def _add_dumps(
     cls,
     endpoint: ArtefactEndpoint,
@@ -280,6 +295,7 @@ def _add_dumps(
     setattr(cls, "__artefact_endpoint__", endpoint)
     if model_name is None:
         model_name = str(cls)
+    setattr(cls, "__model_name__", model_name)
 
     def dumps(self) -> PyModelID:
         LOGGER.info(f"Starting Dumps for {str(self)}")
@@ -319,7 +335,7 @@ def _add_dumps(
 
             model = ModelData(
                 name=model_name if model_name is not None else str(self),
-                vcs_hash=get_current_hash().hash,
+                vcs_info=get_vcs_info(),
                 local_artefacts=local_artefact_files,
                 children=child_ids,
             )
@@ -337,11 +353,11 @@ def _add_loads(cls, endpoint: ArtefactEndpoint, auto_detect_artefacts: bool) -> 
             _detect_artefacts(self)
         _add_children(self)
         LOGGER.info(
-            f"Loading Model Data for {self} - {model_id.artefact_schema_id.as_hex_string()=} {model_id.artefact_schema_id.as_hex_string()=} {model_id.vcs_hash=} "
+            f"Loading Model Data for {self} - {model_id.artefact_schema_id.as_hex_string()=} {model_id.artefact_schema_id.as_hex_string()=} {model_id.vcs_id=} "
         )
         model_data = load_model_data(
             model_name=model_id.name,
-            vcs_hash=model_id.vcs_hash,
+            vcs_id=model_id.vcs_id,
             artefact_schema_id=model_id.artefact_schema_id,
             endpoint=endpoint.endpoint,
         )
@@ -365,7 +381,6 @@ def _add_loads(cls, endpoint: ArtefactEndpoint, auto_detect_artefacts: bool) -> 
                     )
             except RuntimeError:
                 pass
-
 
     if not hasattr(cls, "loads"):
         setattr(cls, "loads", loads)
@@ -409,7 +424,13 @@ def artefacts(
             cls, artefact_serializers, detectors, metadata_slot_name, access_interface
         )
         _add_dumps(cls, endpoint, auto_detect_artefacts, model_name=name)
+        _add_logger(cls, endpoint)
         _add_loads(cls, endpoint, auto_detect_artefacts)
         return cls
 
     return artefact_decorator
+
+
+find_artefacts = partial(
+    artefacts, artefact_serializers={}, detectors=DefaultDetectors.detectors().keys()
+)

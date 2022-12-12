@@ -3,7 +3,7 @@ import pytest
 from jackdaw_ml.artefact_decorator import artefacts, ArtefactNotFound
 from jackdaw_ml.serializers.pickle import PickleSerializer
 
-
+@pytest.mark.local
 @artefacts({PickleSerializer: "m"})
 class ModelExample:
     def __init__(self) -> None:
