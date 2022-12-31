@@ -1,14 +1,37 @@
-__all__ = ['AccessInterface', 'DefaultAccessInterface', 'DictAccessInterface']
+from __future__ import annotations
+
+__all__ = ["AccessInterface", "DefaultAccessInterface", "DictAccessInterface"]
 
 import inspect
 import logging
 from abc import ABC
-from typing import Generic, TypeVar, List, Dict, Optional
+from typing import (
+    Generic,
+    TypeVar,
+    List,
+    Dict,
+    Optional,
+    Any,
+    Tuple,
+    Iterable,
+    TYPE_CHECKING,
+    Type,
+    Union,
+)
 
 C = TypeVar("C")
 T = TypeVar("T")
 
 logger = logging.getLogger(__name__)
+
+
+if TYPE_CHECKING:
+    from jackdaw_ml.detectors import (
+        Serializable,
+        ChildDetector,
+        ArtefactDetector,
+    )
+    from jackdaw_ml.artefact_container import SupportsArtefacts
 
 
 class AccessInterface(ABC, Generic[C, T]):
@@ -27,39 +50,106 @@ class AccessInterface(ABC, Generic[C, T]):
     """
 
     @classmethod
-    def keys(cls, container: Dict[str, T]) -> List[str]:
-        return list(cls.items(container).keys())
+    def _keys(cls, container: Dict[str, T]) -> List[str]:
+        return list(cls._items(container).keys())
 
     @staticmethod
-    def get_item(container: C, key: str) -> T:
+    def _get_item(container: C, key: str) -> T:
         raise NotImplementedError
 
     @staticmethod
-    def set_item(container: C, key: str, value: T) -> None:
+    def _set_item(container: C, key: str, value: T) -> None:
         raise NotImplementedError
 
     @staticmethod
-    def items(container: C) -> Dict[str, T]:
+    def _items(container: C) -> Dict[str, T]:
         raise NotImplementedError
 
     @staticmethod
-    def from_dict(d: Dict[str, T]) -> C:
+    def _from_dict(d: Dict[str, T]) -> C:
         raise NotImplementedError
+
+    @classmethod
+    def list_artefacts(
+        cls,
+        model: "SupportsArtefacts",
+        artefact_detectors: "List[ArtefactDetector]",
+    ) -> Iterable[Tuple[str, Any, "Serializable"]]:
+        possible_artefact_names = cls._keys(model)
+        artefact_slots = getattr(model, "__artefact_slots__", dict())
+        for artefact_name in set(possible_artefact_names) - set(artefact_slots.keys()):
+            for detector in artefact_detectors:
+                if detector.is_artefact(cls.get_artefact(model, artefact_name)):
+                    yield artefact_name, cls.get_artefact(
+                        model, artefact_name
+                    ), detector.serializer
+                    break
+        for artefact_name, serializer in artefact_slots.items():
+            yield artefact_name, cls.get_artefact(model, artefact_name), serializer
+
+    @classmethod
+    def list_children(
+        cls,
+        model: "SupportsArtefacts",
+        child_detectors: "List[ChildDetector]",
+        artefact_detectors: "List[ArtefactDetector]",
+    ) -> Iterable[Tuple[str, Type[AccessInterface]]]:
+        identified_children = []
+        for child_name in [a for a in cls._keys(model)]:
+            if child_name is None or child_name == "__dict__":
+                # This is self-referential - implying that the artefacts/children on the class are a child class.
+                continue
+            detectors: List[Union[ChildDetector, ArtefactDetector]] = [
+                *child_detectors,
+                *artefact_detectors,
+            ]
+            for detector in detectors:
+                if (
+                    child_interface := detector.get_child_interface(
+                        cls.get_artefact(model, child_name)
+                    )
+                ) is not None:
+                    identified_children.append(child_name)
+                    yield child_name, child_interface
+                    # Break detection loop - move to next child_name
+                    break
+
+    @classmethod
+    def get_child(cls, model, child_name: str) -> "SupportsArtefacts":
+        artefact = cls.get_artefact(model, child_name)
+        if not isinstance(artefact, SupportsArtefacts):
+            raise ValueError("Retrieved Artefact is not a Model")
+        return artefact
+
+    @classmethod
+    def set_artefact(cls, model: "SupportsArtefacts", artefact_name: str, artefact: T):
+        return cls._set_item(model, artefact_name, artefact)
+
+    @classmethod
+    def get_artefact(cls, model: "SupportsArtefacts", artefact_name: str) -> T:
+        return cls._get_item(model, artefact_name)
+
+    @classmethod
+    def has_artefact(cls, model: "SupportsArtefacts", artefact_name: str) -> bool:
+        try:
+            return cls.get_artefact(model, artefact_name) is not None
+        except AttributeError:
+            return False
 
 
 class DefaultAccessInterface(AccessInterface[Dict[str, T], T]):
     @classmethod
-    def keys(cls, container: Dict[str, T]) -> List[str]:
+    def _keys(cls, container: Dict[str, T]) -> List[str]:
         return [
             name
             for name in dir(container)
             if not name.startswith("_")
-            and not inspect.ismethod(cls.get_item(container, name))
-            and not inspect.isfunction(cls.get_item(container, name))
+            and not inspect.ismethod(cls._get_item(container, name))
+            and not inspect.isfunction(cls._get_item(container, name))
         ]
 
     @staticmethod
-    def get_item(container: Dict[str, T], key: str) -> Optional[T]:
+    def _get_item(container: Dict[str, T], key: str) -> Optional[T]:
         # When accessing attributes, it's tricky to tell the difference between properties that will behave like
         #   functions, and actual attributes that contain values. Ignoring classes that happen to act like functions
         #   isn't viable either - i.e. Torch Modules are classes that have a __call__ property so that they can act like
@@ -69,18 +159,20 @@ class DefaultAccessInterface(AccessInterface[Dict[str, T], T]):
         except RuntimeError:
             logger.warning(f"Accessing {key} on {container} caused a runtime error")
             return None
+        except AttributeError:
+            return None
         return item
 
     @staticmethod
-    def set_item(container: Dict[str, T], key: str, value: T) -> None:
+    def _set_item(container: Dict[str, T], key: str, value: T) -> None:
         setattr(container, key, value)
 
     @staticmethod
-    def items(container: Dict[str, T]) -> Dict[str, T]:
+    def _items(container: Dict[str, T]) -> Dict[str, T]:
         return container.__dict__
 
     @staticmethod
-    def from_dict(d: Dict[str, T]) -> Dict[str, T]:
+    def _from_dict(d: Dict[str, T]) -> Dict[str, T]:
         return d
 
 

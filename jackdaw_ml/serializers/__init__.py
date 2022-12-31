@@ -1,5 +1,6 @@
 __all__ = ["Serializable"]
 
+import pathlib
 from abc import abstractmethod
 from typing import Generic, TypeVar, Optional
 
@@ -13,6 +14,12 @@ class Serializable(Generic[T]):
     @abstractmethod
     def to_resource(item: T) -> Resource:
         raise NotImplementedError
+
+    @classmethod
+    def to_file(cls, item: T, filename: pathlib.Path) -> pathlib.Path:
+        with open(filename, "wb") as f:
+            f.write(cls.to_resource(item).inner)
+        return filename
 
     @staticmethod
     @abstractmethod

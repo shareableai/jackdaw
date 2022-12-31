@@ -1,4 +1,4 @@
-from jackdaw_ml.artefact_decorator import SupportsArtefacts
+from jackdaw_ml.artefact_container import SupportsArtefacts
 
 
 def trace_artefacts(cls: SupportsArtefacts, indent: int = 0):

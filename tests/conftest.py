@@ -21,7 +21,6 @@ serializable_items = [
 ]
 
 
-
 def remote_endpoint() -> ArtefactEndpoint:
     return ArtefactEndpoint.remote(TEST_API_KEY)
 

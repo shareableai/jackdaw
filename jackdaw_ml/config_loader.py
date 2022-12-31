@@ -5,7 +5,7 @@ from typing import List
 def _add_init(cls) -> None:
     items = {
         item_name: eval(item_class)(os.getenv(item_name))
-        for item_name, item_class in cls.__dict__.get("__annotations__", {}).items()
+        for item_name, item_class in cls.__dict__.get("__annotations__", {})._items()
     }
 
     def __init__(self) -> None:

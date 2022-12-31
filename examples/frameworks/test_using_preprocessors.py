@@ -5,10 +5,12 @@ from typing import Tuple
 from sklearn.ensemble import IsolationForest
 from sklearn.preprocessing import StandardScaler
 from jackdaw_ml.artefact_decorator import artefacts
+from jackdaw_ml.loads import loads
+from jackdaw_ml.saves import saves
 from jackdaw_ml.serializers.pickle import PickleSerializer
 
 
-@artefacts({PickleSerializer: ['preproc', 'model']})
+@artefacts({PickleSerializer: ["preproc", "model"]})
 class SKLearnWithPreProc:
     preproc: StandardScaler
     model: IsolationForest
@@ -48,9 +50,8 @@ def test_sklearn_with_preproc_equivalence():
     m2 = SKLearnWithPreProc()
     m1.fit(*example_data())
     m1.predict(example_prediction_data())
-    model_id = m1.dumps()
-    m2.loads(model_id)
+    model_id = saves(m1)
+    loads(m2, model_id)
     assert np_float_equivalence(
-        m1.predict(example_prediction_data()),
-        m2.predict(example_prediction_data())
+        m1.predict(example_prediction_data()), m2.predict(example_prediction_data())
     )

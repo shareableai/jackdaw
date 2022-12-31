@@ -1,16 +1,20 @@
 __all__ = ["Detector"]
 
 from dataclasses import dataclass
-from typing import Set, TypeVar, Type, Generic, Any, Optional, Union
+from collections import OrderedDict
+from typing import Set, TypeVar, Type, Generic, Any, Optional, Union, List, Dict
 
-from jackdaw_ml.access_interface import (
-    AccessInterface,
-    DefaultAccessInterface,
-)
+from jackdaw_ml.access_interface.list_interface import ListAccessInterface
 from jackdaw_ml.detectors.class_detector import ChildModelDetector
 from jackdaw_ml.serializers import Serializable
 
 T = TypeVar("T")
+
+from jackdaw_ml.access_interface import (
+    AccessInterface,
+    DefaultAccessInterface,
+    DictAccessInterface,
+)
 
 
 def _get_origin(obj: object) -> Optional[object]:
@@ -25,16 +29,71 @@ def is_type(obj: object, typ: Type) -> bool:
     origin = _get_origin(typ)
     if origin is None:
         return isinstance(obj, typ)
-    elif origin is dict:
+    elif origin is dict or origin is OrderedDict:
         key, value = typ.__args__
         if key is None and value is None:
             return True
         if not isinstance(obj, dict):
             return False
-        assert isinstance(obj, dict)
-        return all(is_type(k, key) and is_type(v, value) for (k, v) in obj.items())
+        return len(obj.items()) > 0 and all(
+            is_type(k, key) and is_type(v, value) for (k, v) in obj.items()
+        )
+    elif origin is list or origin is List:
+        if not (isinstance(obj, list) or isinstance(obj, List)):
+            return False
+        if len(obj) == 0:
+            return False
+        (list_type,) = typ.__args__
+        return all(is_type(x, list_type) for x in obj)
+    elif origin is set or origin is Set:
+        if not (isinstance(obj, set) or isinstance(obj, Set)):
+            return False
+        if len(obj) == 0:
+            return False
+        (set_type,) = typ.__args__
+        return all(is_type(x, set_type) for x in obj)
     else:
         raise NotImplementedError
+
+
+@dataclass(slots=True)
+class ChildDetector:
+    child_models: Dict[Type[Any], Type[AccessInterface]]
+
+    def get_child_interface(self, item: Any) -> Optional[Type[AccessInterface]]:
+        for child_model_type, child_interface in self.child_models.items():
+            if isinstance(child_model_type, ChildModelDetector):
+                if child_model_type(item):
+                    return DefaultAccessInterface
+            elif is_type(item, child_model_type):
+                return child_interface
+        return None
+
+    def __hash__(self) -> int:
+        return hash(tuple(self.child_models))
+
+
+@dataclass(slots=True)
+class ArtefactDetector(Generic[T]):
+    artefact_types: Set[Type[T]]
+    serializer: Type[Serializable[T]]
+
+    def is_artefact(self, item: Any) -> bool:
+        return any(isinstance(item, subtype) for subtype in self.artefact_types)
+
+    def get_child_interface(self, item: Any) -> Optional[Type[AccessInterface]]:
+        """Retrieve the AccessInterface for the item, if the item is an eligible child."""
+        for subtype in self.artefact_types:
+            if is_type(item, List[subtype]):
+                return ListAccessInterface
+            elif is_type(item, Set[subtype]):
+                raise NotImplementedError
+            elif is_type(item, Dict[str, subtype]):
+                return DictAccessInterface
+        return None
+
+    def __hash__(self) -> int:
+        return hash(tuple(self.artefact_types)) + hash(self.serializer)
 
 
 @dataclass(slots=True)
@@ -64,18 +123,24 @@ class Detector(Generic[T]):
     child_models: Set[Union[Type[object], ChildModelDetector]]
     artefact_types: Set[Type[T]]
     serializer: Optional[Type[Serializable[T]]]
-    access_interface: Type[AccessInterface] = DefaultAccessInterface
+    access_interface: AccessInterface = DefaultAccessInterface()
     storage_location: Optional[str] = None
 
-    def is_child(self, item: Any) -> bool:
+    def get_child_interface(self, item: Any) -> Optional[Type[AccessInterface]]:
         for child_model_type in self.child_models:
             if isinstance(child_model_type, ChildModelDetector):
                 if child_model_type(item):
-                    return True
-            else:
-                if is_type(item, child_model_type):
-                    return True
-        return False
+                    return DefaultAccessInterface
+            elif is_type(item, child_model_type):
+                return DefaultAccessInterface
+        for subtype in self.artefact_types:
+            if is_type(item, List[subtype]):
+                return ListAccessInterface
+            elif is_type(item, Set[subtype]):
+                raise NotImplementedError
+            elif is_type(item, Dict[str, subtype]):
+                return DictAccessInterface
+        return None
 
     def is_artefact(self, item: Any) -> bool:
         return any(isinstance(item, subtype) for subtype in self.artefact_types)

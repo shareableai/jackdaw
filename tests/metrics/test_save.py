@@ -9,4 +9,4 @@ class MyModel:
 
 def test_save_metric():
     model = MyModel()
-    model._log_metric('MyMetric', 0)
+    model._log_metric("MyMetric", 0)

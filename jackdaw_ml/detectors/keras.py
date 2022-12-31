@@ -1,18 +1,20 @@
-__all__ = ["KerasSeqDetector", "KerasDetector"]
+__all__ = ["KerasSeqDetector", "KerasArtefactDetector"]
 
 import keras
 import tensorflow as tf
 
 from jackdaw_ml.access_interface.list_interface import ListAccessInterface
-from jackdaw_ml.detectors import Detector
-from jackdaw_ml.access_interface import AccessInterface
+from jackdaw_ml.detectors import Detector, ChildDetector, ArtefactDetector
+from jackdaw_ml.access_interface import AccessInterface, DefaultAccessInterface
 from jackdaw_ml.detectors.hook import DefaultDetectors, DetectionLevel
 from jackdaw_ml.serializers.keras import KerasSerializer
 
 from typing import List, Dict
 
 
-class KerasLayerAccessInterface(ListAccessInterface[AccessInterface[List[tf.Variable], tf.Variable]]):
+class KerasLayerAccessInterface(
+    ListAccessInterface[AccessInterface[List[tf.Variable], tf.Variable]]
+):
     @classmethod
     def get_index(cls, container: List[tf.Variable], key: str) -> int:
         index = next(
@@ -39,21 +41,18 @@ class KerasLayerAccessInterface(ListAccessInterface[AccessInterface[List[tf.Vari
             return f"{name_component}_{index}"
 
 
-KerasSeqDetector = Detector(
-    child_models={keras.Sequential},
-    artefact_types=set(),
-    serializer=None,
-    access_interface=KerasLayerAccessInterface,
-    storage_location="layers",
+KerasSeqDetector = ChildDetector(
+    child_models={
+        List[keras.layers.Layer]: KerasLayerAccessInterface,
+        keras.layers.Layer: DefaultAccessInterface,
+    }
 )
 
-KerasDetector = Detector(
-    child_models={keras.engine.base_layer.Layer},
+KerasArtefactDetector = ArtefactDetector(
     artefact_types={tf.Variable},
     serializer=KerasSerializer,
-    access_interface=KerasLayerAccessInterface,
-    storage_location="weights",
 )
 
+
 DefaultDetectors.add_detector(KerasSeqDetector, DetectionLevel.Specific)
-DefaultDetectors.add_detector(KerasDetector, DetectionLevel.Generic)
+DefaultDetectors.add_detector(KerasArtefactDetector, DetectionLevel.Generic)
