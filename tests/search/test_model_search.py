@@ -31,7 +31,6 @@ def test_search_models_by_name():
     models = (
         Searcher(ArtefactEndpoint.default()).with_name(str(BasicModelExample)).models()
     )
-    all_models = Searcher(ArtefactEndpoint.default()).models()
     saved_model_id = next(iter(models))
     y = BasicModelExample()
     loads(y, saved_model_id)

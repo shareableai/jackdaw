@@ -72,8 +72,6 @@ def _saves(
         for (artefact_name, serializer) in (
             detected_artefacts | existing_artefacts
         ).items():
-            print(f"Saving Artefact {artefact_name} on class {str(model_class)}")
-
             item = access_interface.get_artefact(model_class, artefact_name)
             filename = tempdir_path / f"{uuid4()}.artefact"
             try:
@@ -84,7 +82,7 @@ def _saves(
                 breakpoint()
                 pass
         model = ModelData(
-            name=str(model_class),
+            name=str(model_class.__class__),
             vcs_info=get_vcs_info(),
             local_artefacts=local_artefact_files,
             children=child_ids,
