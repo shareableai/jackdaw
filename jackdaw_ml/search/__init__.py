@@ -2,7 +2,15 @@ from __future__ import annotations
 
 __all__ = ["Searcher"]
 
-from artefact_link import PyModelID, PyRunID, PyVcsInfo, search_for_models, PyMetricFilter, search_for_vcs_id, PyVcsID
+from artefact_link import (
+    PyModelID,
+    PyRunID,
+    PyVcsInfo,
+    search_for_models,
+    PyMetricFilter,
+    search_for_vcs_id,
+    PyVcsID,
+)
 
 
 from enum import Enum
@@ -92,7 +100,9 @@ class Searcher:
         self.repository_name = repository_name
         return self
 
-    def with_metric(self, comparison: Union[Comparison, str], name: str, value: float) -> Searcher:
+    def with_metric(
+        self, comparison: Union[Comparison, str], name: str, value: float
+    ) -> Searcher:
         if isinstance(comparison, str):
             comparison = Comparison.from_str(comparison)
         self.metric_filters.add(MetricFilter(name, value, comparison))
@@ -109,12 +119,10 @@ class Searcher:
         initial_metric = PyMetricFilter(
             initial_local_metric.metric_name,
             initial_local_metric.metric_value,
-            initial_local_metric.ordering.name
+            initial_local_metric.ordering.name,
         )
         for metric in self.metric_filters:
-            initial_metric = initial_metric.and_(
-                metric
-            )
+            initial_metric = initial_metric.and_(metric)
         return initial_metric
 
     def models(self) -> Set[PyModelID]:
@@ -123,18 +131,19 @@ class Searcher:
         """
         if self.repository_name is not None:
             vcs_ids: List[PyVcsID] = search_for_vcs_id(
-                self.endpoint.endpoint,
-                self.repository_name
+                self.endpoint.endpoint, self.repository_name
             )
         else:
             vcs_ids = list()
-        return set(search_for_models(
-            endpoint=self.endpoint.endpoint,
-            names=list(self.names),
-            runs=list(self.runs),
-            metric_filter=self._metric_filter(),
-            vcs_id=[x.id() for x in self.vcs_information] + vcs_ids
-        ))
+        return set(
+            search_for_models(
+                endpoint=self.endpoint.endpoint,
+                names=list(self.names),
+                runs=list(self.runs),
+                metric_filter=self._metric_filter(),
+                vcs_id=[x.id() for x in self.vcs_information] + vcs_ids,
+            )
+        )
 
     def metrics(self) -> Dict[str, Union[List[str], List[float]]]:
         """

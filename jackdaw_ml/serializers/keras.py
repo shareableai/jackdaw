@@ -1,3 +1,5 @@
+import numpy as np
+
 import pyarrow as pa  # type: ignore
 import tensorflow as tf
 
@@ -16,8 +18,13 @@ class KerasSerializer(Serializable[tf.Variable]):
     def to_resource(item: tf.Variable) -> Resource:
         if not isinstance(item, tf.Variable):
             raise ValueError(f"Received {item}, expected {tf.Variable}")
-        item_weight = pa.Tensor.from_numpy(item.numpy())
-        return TensorSerializer.to_resource(item_weight)
+
+        item_ndarray = item.numpy()
+        # `.numpy() can return a np.float value rather than a np.ndarray`
+        if not isinstance(item_ndarray, np.ndarray):
+            item_ndarray = np.array(item_ndarray)
+        item_ndarray = pa.Tensor.from_numpy(item_ndarray)
+        return TensorSerializer.to_resource(item_ndarray)
 
     @staticmethod
     def from_resource(

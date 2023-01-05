@@ -1,4 +1,6 @@
 from jackdaw_ml.artefact_decorator import artefacts
+from jackdaw_ml import loads
+from jackdaw_ml import saves
 from jackdaw_ml.serializers.pickle import PickleSerializer
 from jackdaw_ml.child_architecture import ChildArchitecture
 
@@ -18,8 +20,8 @@ class MyModel:
 def test_nested_model():
     model = MyModel()
     model.y.x = 4
-    model_id = model.dumps()
+    model_id = saves(model)
 
     new_model = MyModel()
-    new_model.loads(model_id)
+    loads(new_model, model_id)
     assert new_model.y.x == 4
