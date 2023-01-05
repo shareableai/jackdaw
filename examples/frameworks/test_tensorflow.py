@@ -2,12 +2,12 @@ import tensorflow as tf
 import numpy as np
 
 from jackdaw_ml.artefact_decorator import artefacts
-from jackdaw_ml.detectors.keras import KerasSeqDetector, KerasDetector
-from jackdaw_ml.debugging import artefact_debug
 
 from functools import lru_cache
 from typing import Tuple
 
+from jackdaw_ml import loads
+from jackdaw_ml import saves
 
 mnist = tf.keras.datasets.mnist
 
@@ -17,16 +17,18 @@ class TFWrapper:
     model: tf.keras.models.Sequential
 
     def __init__(self):
-        self.model = tf.keras.models.Sequential([
-            tf.keras.layers.Flatten(input_shape=(28, 28)),
-            tf.keras.layers.Dense(128, activation='relu'),
-            tf.keras.layers.Dropout(0.2),
-            tf.keras.layers.Dense(10)
-        ])
+        self.model = tf.keras.models.Sequential(
+            [
+                tf.keras.layers.Flatten(input_shape=(28, 28)),
+                tf.keras.layers.Dense(128, activation="relu"),
+                tf.keras.layers.Dropout(0.2),
+                tf.keras.layers.Dense(10),
+            ]
+        )
         self.loss_fn = tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True)
 
     def fit(self, x_train, y_train, epochs) -> None:
-        self.model.compile(optimizer='adam', loss=self.loss_fn, metrics=['accuracy'])
+        self.model.compile(optimizer="adam", loss=self.loss_fn, metrics=["accuracy"])
         self.model.fit(x_train, y_train, epochs)
 
 
@@ -58,7 +60,7 @@ def model_equivalent(m1: TFWrapper, m2: TFWrapper) -> bool:
 def test_basic_wrapper():
     m1 = TFWrapper()
     m1.fit(*example_train_data(), epochs=1)
-    model_id = m1.dumps()
+    model_id = saves(m1)
     m2 = TFWrapper()
-    m2.loads(model_id)
+    loads(m2, model_id)
     assert model_equivalent(m1, m2)

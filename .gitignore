@@ -5,3 +5,5 @@ jackdaw_ml.egg-info/*
 pytest.ini
 .idea/**
 **/build/lib/*
+/examples/data/**
+**.egg-info

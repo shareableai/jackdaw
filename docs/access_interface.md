@@ -26,3 +26,16 @@ such as `List`. In those cases Jackdaw must either treat each container speciall
 abstract interface over each container that allows the generic behaviour to continue. I am assuming that
 this generic behaviour remains possible, and so implement a `AccessInterface` over containers that allows
 for this type of "everything has a named box" type of data storage and retrieval.
+
+AccessInterfaces effectively allow Jackdaw to 'skip' an attribute and access items on that attribute as if they're
+listed at the top level under a dict-like attribute. For example;
+
+```python
+import torch.nn as nn
+
+class MyClass:
+    x: list[nn.Module]
+```
+
+To access the Modules within MyClass as if they're directly on the class, we need to skip the 'x' attribute. This is 
+performed using the ListAccessInterface[nn.Module], which maps from the list index to a nn.Module.

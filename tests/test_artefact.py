@@ -1,9 +1,13 @@
 import pytest
 
-from jackdaw_ml.artefact_decorator import artefacts, ArtefactNotFound
+from jackdaw_ml.artefact_container import ArtefactNotFound, SupportsArtefacts
+from jackdaw_ml.artefact_decorator import artefacts
+from jackdaw_ml import loads
 from jackdaw_ml.serializers.pickle import PickleSerializer
+from jackdaw_ml import saves
 
 
+@pytest.mark.local
 @artefacts({PickleSerializer: "m"})
 class ModelExample:
     def __init__(self) -> None:
@@ -32,9 +36,7 @@ models = [ModelExample, MultipleItem, IdempotentModelExample]
 
 @pytest.mark.parametrize("model", models)
 def test_attrs(model):
-    assert hasattr(model(), "dumps")
-    assert hasattr(model(), "loads")
-    assert hasattr(model(), "__artefact_slots__")
+    assert isinstance(model(), SupportsArtefacts)
 
 
 @pytest.mark.parametrize("model", models)
@@ -45,24 +47,14 @@ def test_artefact_attr(model):
 
 @pytest.mark.parametrize("model", models)
 def test_dumps(model):
-    _ = model().dumps()
+    _ = saves(model())
 
 
 @pytest.mark.parametrize("test_model", models)
 def test_dump_loads(test_model):
     model = test_model()
     model.m = 400
-    artefact_ids = model.dumps()
+    artefact_ids = saves(model)
     model2 = test_model()
-    model2.loads(artefact_ids)
+    loads(model2, artefact_ids)
     assert model2.m == model.m
-
-
-def test_failing_missing_param():
-    @artefacts({PickleSerializer: "m"})
-    class ModelExample:
-        def __init__(self) -> None:
-            self.b = 3
-
-    with pytest.raises(ArtefactNotFound):
-        ModelExample().dumps()

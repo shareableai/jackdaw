@@ -1,4 +1,4 @@
-from typing import Any
+from typing import Any, List, Set
 
 import pytest
 
@@ -15,6 +15,8 @@ from jackdaw_ml.detectors import is_type
         ({"1": "1", "2": "2"}, dict),
         ({"1": "1", "2": "2"}, dict[Any, Any]),
         ({"1": {"a": 1}, "2": {"b": 2}}, dict[str, dict[str, int]]),
+        ([1, 2, 3], List[int]),
+        ({1, 2, 3}, Set[int]),
     ],
 )
 def test_type_check(obj, obj_type):

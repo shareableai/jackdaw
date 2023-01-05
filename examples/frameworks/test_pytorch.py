@@ -7,8 +7,8 @@ import torch.optim as optim
 from torch.optim.lr_scheduler import StepLR
 from torchvision import datasets, transforms
 
-from jackdaw_ml.detectors.torch import TorchSeqDetector, TorchDetector
-from jackdaw_ml.serializers.tensor import TorchSerializer
+from jackdaw_ml import loads
+from jackdaw_ml import saves
 from tests.conftest import take_n
 
 from jackdaw_ml.artefact_decorator import artefacts
@@ -18,7 +18,7 @@ torch.backends.cudnn.benchmark = False
 torch.use_deterministic_algorithms(True)
 
 
-@artefacts({TorchSerializer: ["conv1", "conv2", "fc1", "fc2"]}, detectors=None)
+@artefacts({})
 class Net(nn.Module):
     def __init__(self):
         super(Net, self).__init__()
@@ -41,6 +41,27 @@ class Net(nn.Module):
         x = F.relu(x)
         x = self.dropout2(x)
         x = self.fc2(x)
+        output = F.log_softmax(x, dim=1)
+        return output
+
+
+@artefacts({})
+class NetSequential(nn.Module):
+    def __init__(self):
+        super(NetSequential, self).__init__()
+        self.model = nn.Sequential(
+            nn.Conv2d(1, 32, 3, 1),
+            nn.Conv2d(32, 64, 3, 1),
+            nn.MaxPool2d(2),
+            nn.Dropout(0.25),
+            nn.Flatten(1),
+            nn.Dropout(0.5),
+            nn.Linear(9216, 128),
+            nn.Linear(128, 10),
+        )
+
+    def forward(self, x):
+        x = self.model(x)
         output = F.log_softmax(x, dim=1)
         return output
 
@@ -98,25 +119,44 @@ def eval(model, device, test_loader) -> List[float]:
 
 
 def assert_model_equivalence(model: torch.nn.Module, model_two: torch.nn.Module):
-    assert (
-        len(model_two.__artefact_slots__.keys()) > 0
-        or len(model_two.__artefact_children__) > 0
+    for (key, value) in model.state_dict().items():
+        assert torch.equal(
+            value, model_two.state_dict()[key]
+        ), f"Not Equal in key {key}"
+
+
+def test_seq_save_load_pytorch_model():
+    device = "cpu"
+    lr = 1.0
+    gamma = 0.7
+    epochs = 1
+    transform = transforms.Compose(
+        [transforms.ToTensor(), transforms.Normalize((0.1307,), (0.3081,))]
     )
-    for submodel_name in model_two.__artefact_children__:
-        submodel = getattr(model, submodel_name)
-        assert (
-            len(submodel.__artefact_slots__.keys()) > 0
-            or len(submodel.__artefact_children__) > 0
-        )
-        sub_loaded_model = getattr(model_two, submodel_name)
-        for artefact_name in submodel.__artefact_slots__.keys():
-            if artefact_name in ["weight", "bias"]:
-                assert torch.all(
-                    getattr(submodel, artefact_name)
-                    == getattr(sub_loaded_model, artefact_name)
-                ), print(
-                    f"Parameter didn't match in {artefact_name} for {submodel_name}"
-                )
+
+    dataset1 = datasets.MNIST("../data", train=True, download=True, transform=transform)
+    dataset2 = datasets.MNIST("../data", train=False, transform=transform)
+    train_loader = torch.utils.data.DataLoader(dataset1, batch_size=100)
+    test_loader = torch.utils.data.DataLoader(dataset2)
+
+    model = NetSequential().to(device)
+    optimizer = optim.Adadelta(model.parameters(), lr=lr)
+
+    scheduler = StepLR(optimizer, step_size=1, gamma=gamma)
+    for epoch in range(1, epochs + 1):
+        train(model, device, train_loader, optimizer, epoch)
+        _ = eval(model, device, test_loader)
+        scheduler.step()
+
+    test_predictions = eval(model, device, test_loader)
+    model_id = saves(model)
+
+    loaded_model = NetSequential()
+    loads(loaded_model, model_id)
+    loaded_model_predictions = eval(loaded_model, device, test_loader)
+
+    assert_model_equivalence(model, loaded_model)
+    assert all([x == y for (x, y) in zip(loaded_model_predictions, test_predictions)])
 
 
 def test_save_load_pytorch_model():
@@ -143,10 +183,10 @@ def test_save_load_pytorch_model():
         scheduler.step()
 
     test_predictions = eval(model, device, test_loader)
-    model_id = model.dumps()
+    model_id = saves(model)
 
     loaded_model = Net()
-    loaded_model.loads(model_id)
+    loads(loaded_model, model_id)
     loaded_model_predictions = eval(loaded_model, device, test_loader)
 
     assert_model_equivalence(model, loaded_model)

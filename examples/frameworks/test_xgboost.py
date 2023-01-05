@@ -1,21 +1,23 @@
-import json
 import tempfile
 
 import numpy as np
 import xgboost as xgb
 
 from jackdaw_ml.artefact_decorator import artefacts
+from jackdaw_ml import loads
+from jackdaw_ml import saves
 from jackdaw_ml.serializers.pickle import PickleSerializer
 
 from functools import lru_cache
 
 
-@artefacts({PickleSerializer: ['model']})
+@artefacts({PickleSerializer: ["model"]})
 class BasicXGBWrapper:
     """
     XGBoost is zipsafe, so there's no real issue with using PickleSerializer over the Booster objects it provided.
     For better performance, you can construct a custom XGB serializer.
     """
+
     booster: xgb.Booster
 
 
@@ -38,22 +40,24 @@ def np_float_equivalence(a: np.ndarray, b: np.ndarray) -> bool:
 
 
 def model_equivalent(m1: BasicXGBWrapper, m2: BasicXGBWrapper) -> bool:
-    with tempfile.NamedTemporaryFile('wb') as m1_f:
-        with tempfile.NamedTemporaryFile('wb') as m2_f:
+    with tempfile.NamedTemporaryFile("wb") as m1_f:
+        with tempfile.NamedTemporaryFile("wb") as m2_f:
             m1_res = m1.model.predict(example_data_raw())
             m2_res = m2.model.predict(example_data_raw())
             m1_f.close()
             m2_f.close()
             m1.model.dump_model(str(m1_f.name))
             m2.model.dump_model(str(m2_f.name))
-    return np_float_equivalence(m1_res, m2_res) and open(m1_f.name).read() == open(m2_f.name).read()
+    return (
+        np_float_equivalence(m1_res, m2_res)
+        and open(m1_f.name).read() == open(m2_f.name).read()
+    )
 
 
 def test_basic_wrapper():
     m1 = BasicXGBWrapper()
     m1.model = xgb.train({}, example_data())
-    model_id = m1.dumps()
+    model_id = saves(m1)
     m2 = BasicXGBWrapper()
-    m2.loads(model_id)
+    loads(m2, model_id)
     assert model_equivalent(m1, m2)
-

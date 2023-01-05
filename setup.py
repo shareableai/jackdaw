@@ -14,7 +14,7 @@ LIBRARIES = [*requirements, *dev_requirements]
 
 setup(
     name="jackdaw_ml",
-    version="0.0.1",
+    version="0.0.2",
     packages=find_packages(),
     install_requires=requirements,
     extras_require={"dev": dev_requirements + requirements, "all": LIBRARIES},

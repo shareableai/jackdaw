@@ -1,23 +1,38 @@
-# Jackdaw ML - Simplify Sharing Models
+# Jackdaw ML
 
-Jackdaw ML is a tool of ShareableAI to make it easier to share your Machine Learning models. Jackdaw is currently in pre-alpha, and 
-shouldn't be used in production by anyone.
+Jackdaw is a framework designed to help Data Scientists save, load, and deploy Machine Learning models in a 
+simple and robust way.
+
+Unlike other frameworks, sharing a model only requires two short lines of code.
+
+1. `@find_artefacts`
+    
+    Scan model code, finding model artefacts and variables. Jackdaw supports PyTorch, Tensorflow, XGBoost, and LightGBM
+    out of the box, but is trivial for users to expand to other frameworks.
+
+
+2. `jackdaw_ml.saves`
+    
+    Model artefacts are saved to either local or remote storage, and the user is provided with a Model ID. 
+    Users can store the ID for use in deployment, or search for the model by its name, metrics, Git branch, etc. 
+
+A Model can be as simple as a stored number, or as complex as a combination of frameworks. Regardless of complexity, 
+Jackdaw aims to make it simple to share your models with other applications, other colleagues, or other companies.
 
 Documentation is baked into the repository, and is available [here](docs). 
 
 ## Setup - Working Locally
-The core library is available on [PyPi](https://pypi.org/project/jackdaw-ml/) and can be installed via pip;
-
+Jackdaw is available on [PyPi](https://pypi.org/project/jackdaw-ml/) and can be installed via pip;
 
 ```bash
 >>> pip install jackdaw_ml
 ```
 
-### Alpha Support
+### Alpha - Limited Windows & Mac Support
 While Jackdaw is in Alpha, one of the libraries it relies upon - artefactlink - only supports Windows and Mac OS/X for Python 3.10. Linux support is available for 3.8, 3.9, and 3.10.
 
-## Setup - Sharing Models Remotely
-To share items remotely, you'll eventually need an account with ShareableAI. 
+## Setup - Sharing Models across Environments
+To share items across multiple computers, you'll eventually need an account with ShareableAI. 
 
 For now, you just need your API Token. If you don't have a token, reach out to `lissa@shareablei.com` and they'll ping you one.
 
@@ -25,55 +40,61 @@ For now, you just need your API Token. If you don't have a token, reach out to `
 [View our Public Roadmap here](https://github.com/orgs/shareableai/projects/1/views/1)
 
 
-## Getting Started Example
+## Getting Started
 
-Below we save a simple model with Jackdaw. Examples for PyTorch can be found in [our tests](examples/frameworks/test_pytorch.py), and more 
-information can be found in [our documentation](docs/save.md)
+### Example by Framework 
+* [SKLearn](examples/frameworks/test_sklearn.py)
+* [LightGBM](examples/frameworks/test_lightgbm.py)
+* [XGBoost](examples/frameworks/test_xgboost.py)
+* [PyTorch](examples/frameworks/test_pytorch.py)
+* [Tensorflow](examples/frameworks/test_tensorflow.py)
+* [DARTs](examples/frameworks/test_darts.py)
+
+### Example
+
+The core magic of Jackdaw is within the `@artefacts` and `@find_artefacts` decorators.
+
+`@artefacts` allows you to list what should be saved on a Model. `@find_artefacts` will detect what should be saved based
+on a whole host of common frameworks. Combining the two is a powerful way of ensuring complex models can be saved easily.
+
 
 ```python
-from jackdaw_ml.artefact_decorator import artefacts
-from jackdaw_ml.serializers.pickle import PickleSerializer
-from jackdaw_ml.child_architecture import ChildArchitecture
+from jackdaw_ml.artefact_decorator import find_artefacts
 from jackdaw_ml.trace import trace_artefacts
+from jackdaw_ml import saves
 
-@artefacts({PickleSerializer: ["x"]})
-class MySubModel(ChildArchitecture):
-    def __init__(self):
-        self.x = 3
+import lightgbm as lgb
+import numpy as np
 
+@find_artefacts()
+class BasicLGBWrapper:
+    model: lgb.Booster
 
-@artefacts({})
-class MyModel:
-    def __init__(self):
-        self.y = MySubModel()
+    
+# The LightGBM model is defined dynamically, so the Booster only exists after we call fit.
+# >>> trace_artefacts(BasicLGBWrapper())
+# <class 'frameworks.test_lightgbm.BasicLGBWrapper'>{}
+
+def example_data() -> lgb.Dataset:
+    data = np.random.rand(500, 10)  # 500 entities, each contains 10 features
+    label = np.random.randint(2, size=500)  # binary target
+    return lgb.Dataset(data, label=label)
 
 # Create a new Model
-model = MyModel()
+model = BasicLGBWrapper()
 # Modify the model
-model.y.x = 4
-# Save the model
-model_id = model.dumps()
+model.model = lgb.train({}, example_data())
 
-# # Current Artefacts on Model can be seen by calling `trace_artefacts`
+# Model now has a defined artefact in the `model` slot
 # >>> trace_artefacts(model)
-# <class '__main__.MyModel'>{
-#        (y) <class '__main__.MySubModel'>{
-#                (x) [<class 'jackdaw_ml.serializers.pickle.PickleSerializer'>]
-#        }
-#
-# MyModel holds a child model on attribute 'y' called MySubModel, which contains a PickleSerialize'd artefact on 
-#   attribute `x`
+# <class 'frameworks.test_lightgbm.BasicLGBWrapper'>{
+#	(model) [<class 'jackdaw_ml.serializers.pickle.PickleSerializer'>]
+# }
 
-# Create another model
-new_model = MyModel()
-new_model.y.z = 10
-# Load the model back in, using the Model ID
-new_model.loads(model_id)
-# New model is identical to the saved model
-assert new_model.y.x == 4
-# Non-artefacts aren't affected by `loads`
-assert new_model.y.z == 10
+# Save the model
+model_id = saves(model)
 ```
+
 
 ## Saving Remotely
 Saving and loading items from ShareableAI servers, rather than locally, can be achieved by providing an API key alongside the call to 
