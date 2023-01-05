@@ -12,7 +12,6 @@ from artefact_link import (
     PyVcsID,
 )
 
-
 from enum import Enum
 from typing import Union, List, Dict, Set, Optional
 from dataclasses import dataclass
@@ -23,18 +22,30 @@ from jackdaw_ml.artefact_endpoint import ArtefactEndpoint
 class Comparison(Enum):
     GT = ">"
     LT = "<"
-    GTE = ">="
-    LTE = "<="
     EQ = "="
 
     @staticmethod
     def from_str(string: str) -> Comparison:
-        if string not in Comparison.__members__:
+        if string not in [v.value for v in Comparison.__members__.values()]:
             raise ValueError(f"Unknown comparison - {string}")
-        return Comparison.__members__[string]
+        return next(v for v in Comparison.__members__.values() if v.value == string)
+
+    def __str__(self) -> str:
+        match self:
+            case Comparison.GT:
+                return "greater"
+            case Comparison.LT:
+                return "less"
+            case Comparison.EQ:
+                return "equal"
+            case _:
+                raise RuntimeError("Unreachable")
+
+    def __hash__(self) -> int:
+        return hash(tuple([self.name, self.value]))
 
 
-@dataclass
+@dataclass(unsafe_hash=True)
 class MetricFilter:
     metric_name: str
     metric_value: float
@@ -49,7 +60,7 @@ class Searcher:
     # Finding matching models locally
     models = (Searcher(ArtefactEndpoint.default())
         .with_name(["xgboost", "tensorflow"])
-        .with_metric("<=", "accuracy", 0.5)
+        .with_metric("<", "accuracy", 0.5)
         .with_metric(">", "loss", 0.1)
         .models())
 
@@ -63,7 +74,7 @@ class Searcher:
     model_metrics = (Searcher(ArtefactEndpoint.remote(MY_API_KEY))
         .with_name(["xgboost", "tensorflow"])
         .with_runs([RunIDOne])
-        .with_metric("<=", "accuracy", 0.5)
+        .with_metric("<", "accuracy", 0.5)
         .with_metric(">", "loss", 0.1)
         .metrics())
 
@@ -101,7 +112,7 @@ class Searcher:
         return self
 
     def with_metric(
-        self, comparison: Union[Comparison, str], name: str, value: float
+            self, comparison: Union[Comparison, str], name: str, value: float
     ) -> Searcher:
         if isinstance(comparison, str):
             comparison = Comparison.from_str(comparison)
@@ -119,7 +130,7 @@ class Searcher:
         initial_metric = PyMetricFilter(
             initial_local_metric.metric_name,
             initial_local_metric.metric_value,
-            initial_local_metric.ordering.name,
+            str(initial_local_metric.ordering),
         )
         for metric in self.metric_filters:
             initial_metric = initial_metric.and_(metric)

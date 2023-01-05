@@ -77,13 +77,9 @@ def _saves(
         ).items():
             item = access_interface.get_artefact(model_class, artefact_name)
             filename = tempdir_path / f"{uuid4()}.artefact"
-            try:
-                local_artefact_files.append(
-                    LocalArtefactPath(artefact_name, serializer.to_file(item, filename))
-                )
-            except ValueError:
-                breakpoint()
-                pass
+            local_artefact_files.append(
+                LocalArtefactPath(artefact_name, serializer.to_file(item, filename))
+            )
         model = ModelData(
             name=str(model_class.__class__),
             vcs_info=get_vcs_info(),
@@ -102,7 +98,6 @@ def saves(model_class: SupportsArtefacts) -> PyModelID:
             model_class.__child_detectors__,
         )
     else:
-        breakpoint()
         raise ValueError(
             "Model Class provided must be initialised via @artefacts before calling loads or save"
         )
