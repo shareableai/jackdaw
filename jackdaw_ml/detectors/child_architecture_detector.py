@@ -12,7 +12,7 @@ ChildArchitectureDetector = ChildDetector(
     child_models={
         ChildArchitecture: DefaultAccessInterface,
         List[ChildArchitecture]: ListAccessInterface,
-        Dict[str, ChildArchitecture]: DictAccessInterface
+        Dict[str, ChildArchitecture]: DictAccessInterface,
     }
 )
 

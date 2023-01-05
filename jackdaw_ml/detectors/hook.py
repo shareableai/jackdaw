@@ -46,6 +46,12 @@ class DefaultDetectors:
             )
         except ImportError:
             pass
+        try:
+            from jackdaw_ml.detectors.lightgbm import (
+                LightGBMDetector,
+            )
+        except ImportError:
+            pass
         return {
             detector: None
             for detector in (

@@ -3,15 +3,14 @@ import json
 import numpy as np
 import lightgbm as lgb
 
-from jackdaw_ml.artefact_decorator import artefacts
-from jackdaw_ml.loads import loads
-from jackdaw_ml.saves import saves
-from jackdaw_ml.serializers.pickle import PickleSerializer
+from jackdaw_ml.artefact_decorator import find_artefacts
+from jackdaw_ml import loads
+from jackdaw_ml import saves
 
 from functools import lru_cache
 
 
-@artefacts(artefact_serializers={PickleSerializer: ["model"]})
+@find_artefacts()
 class BasicLGBWrapper:
     model: lgb.Booster
 

@@ -81,6 +81,9 @@ class ArtefactDetector(Generic[T]):
     def is_artefact(self, item: Any) -> bool:
         return any(isinstance(item, subtype) for subtype in self.artefact_types)
 
+    def is_artefact_type(self, item: Type[Any]) -> bool:
+        return any((item == subtype) for subtype in self.artefact_types)
+
     def get_child_interface(self, item: Any) -> Optional[Type[AccessInterface]]:
         """Retrieve the AccessInterface for the item, if the item is an eligible child."""
         for subtype in self.artefact_types:

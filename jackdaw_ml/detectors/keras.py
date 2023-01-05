@@ -18,12 +18,10 @@ class KerasLayerAccessInterface(
     @classmethod
     def get_index(cls, container: List[tf.Variable], key: str) -> int:
         index = next(
-            iter(
-                [
-                    i
-                    for (i, c) in enumerate(container)
-                    if f"{cls.get_item_name(c, i)}" == key
-                ]
+            (
+                i
+                for (i, c) in enumerate(container)
+                if f"{cls.get_item_name(c, i)}" == key
             ),
             None,
         )

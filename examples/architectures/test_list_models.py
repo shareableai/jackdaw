@@ -9,10 +9,9 @@ from jackdaw_ml.child_architecture import ChildArchitecture
 
 from functools import lru_cache
 
-from jackdaw_ml.loads import loads
-from jackdaw_ml.saves import saves
+from jackdaw_ml import loads
+from jackdaw_ml import saves
 from jackdaw_ml.serializers.pickle import PickleSerializer
-from jackdaw_ml.trace import trace_artefacts
 
 
 @artefacts({PickleSerializer: ["xgb_model"]})
@@ -76,7 +75,6 @@ def model_equivalent(m1: MyModel, m2: MyModel) -> bool:
 def test_list_wrapper():
     m1 = MyModel()
     m1.train(example_data())
-    trace_artefacts(m1)
     model_id = saves(m1)
     m2 = MyModel()
     loads(m2, model_id)

@@ -6,8 +6,8 @@ from jackdaw_ml.artefact_decorator import artefacts
 from functools import lru_cache
 from typing import Tuple
 
-from jackdaw_ml.loads import loads
-from jackdaw_ml.saves import saves
+from jackdaw_ml import loads
+from jackdaw_ml import saves
 
 mnist = tf.keras.datasets.mnist
 

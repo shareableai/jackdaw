@@ -1,8 +1,8 @@
 import pytest
 from pytest_lazyfixture import lazy_fixture
 
-from jackdaw_ml.loads import loads
-from jackdaw_ml.saves import saves
+from jackdaw_ml import loads
+from jackdaw_ml import saves
 
 
 @pytest.mark.remote
@@ -15,7 +15,7 @@ from jackdaw_ml.saves import saves
     ],
 )
 def test_dumps(model_under_test):
-    _ = model_under_test().dumps()
+    _ = saves(model_under_test())
 
 
 @pytest.mark.remote
@@ -29,7 +29,7 @@ def test_dumps(model_under_test):
 )
 def test_dump_loads(model_under_test):
     model = model_under_test()
-    model.m = 400
+    model.m = 500
     model_id = saves(model)
     model2 = model_under_test()
     loads(model2, model_id)

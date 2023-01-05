@@ -10,8 +10,8 @@ from jackdaw_ml.artefact_decorator import artefacts, _add_artefacts
 from jackdaw_ml.artefact_endpoint import ArtefactEndpoint
 from jackdaw_ml.detectors import is_type
 from jackdaw_ml.detectors.hook import DefaultDetectors
-from jackdaw_ml.loads import loads
-from jackdaw_ml.saves import saves
+from jackdaw_ml import loads
+from jackdaw_ml import saves
 
 
 @artefacts({})

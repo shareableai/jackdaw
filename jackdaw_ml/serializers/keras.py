@@ -23,10 +23,7 @@ class KerasSerializer(Serializable[tf.Variable]):
         # `.numpy() can return a np.float value rather than a np.ndarray`
         if not isinstance(item_ndarray, np.ndarray):
             item_ndarray = np.array(item_ndarray)
-        try:
-            item_ndarray = pa.Tensor.from_numpy(item_ndarray)
-        except:
-            breakpoint()
+        item_ndarray = pa.Tensor.from_numpy(item_ndarray)
         return TensorSerializer.to_resource(item_ndarray)
 
     @staticmethod

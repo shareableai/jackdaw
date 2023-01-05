@@ -4,22 +4,17 @@ import numpy as np
 import torch
 
 import logging
+
 logging.getLogger().setLevel(logging.WARN)
 
 from darts import TimeSeries
 from darts.datasets import AirPassengersDataset
 from darts.models import TransformerModel
 
-from jackdaw_ml.access_interface import DictAccessInterface, DefaultAccessInterface
-from jackdaw_ml.access_interface.list_interface import ListAccessInterface
-from jackdaw_ml.artefact_container import _detect_children
 from jackdaw_ml.artefact_decorator import artefacts
-from jackdaw_ml.artefact_endpoint import ArtefactEndpoint
-from jackdaw_ml.detectors.hook import DefaultDetectors
-from jackdaw_ml.loads import loads
+from jackdaw_ml import loads
 from jackdaw_ml.detectors.torch import TorchDetector, TorchSeqDetector
-from jackdaw_ml.saves import saves
-from jackdaw_ml.trace import trace_artefacts
+from jackdaw_ml import saves
 
 # As the class already exists, we can just add artefacts to it and rename it
 TransformerModelWithArtefacts = artefacts(
@@ -73,8 +68,6 @@ def test_darts_torch_equivalence():
     # Load in the pre-existing model's artefacts
     loads(m2, model_id)
     assert assert_model_equivalence(m1.model, m2.model)
-
-    # FIXME: Missing a LOT of artefacts during save - check if DARTS has a model class we're not tracking.
 
 
 if __name__ == "__main__":

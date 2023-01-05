@@ -4,8 +4,8 @@ import numpy as np
 from typing import Tuple
 from sklearn.ensemble import IsolationForest
 from jackdaw_ml.artefact_decorator import artefacts
-from jackdaw_ml.loads import loads
-from jackdaw_ml.saves import saves
+from jackdaw_ml import loads
+from jackdaw_ml import saves
 from jackdaw_ml.serializers.pickle import PickleSerializer
 
 

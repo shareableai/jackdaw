@@ -51,6 +51,21 @@ class SupportsArtefacts(Protocol):
     __artefact_detectors__: List[ArtefactDetector]
 
 
+def _detect_artefact_annotations(
+    model_class: SupportsArtefacts,
+    child_slots: Set[str],
+    artefact_detectors: List[ArtefactDetector],
+) -> Dict[str, Type[Serializable]]:
+    artefacts: Dict[str, Type[Serializable]] = {}
+    for (name, item_class) in getattr(model_class, "__annotations__", {}).items():
+        if name not in child_slots:
+            for detector in artefact_detectors:
+                if detector.is_artefact_type(item_class):
+                    artefacts[name] = detector.serializer
+                    break
+    return artefacts
+
+
 def _detect_artefacts(
     model_class: Union[SupportsArtefacts, Tuple[Any, AccessInterface]],
     child_slots: Set[str],
@@ -112,7 +127,9 @@ def _detect_children(
             )
         except AttributeError:
             pass
-        if child_access_interface is DefaultAccessInterface and isinstance(child, SupportsArtefacts):
+        if child_access_interface is DefaultAccessInterface and isinstance(
+            child, SupportsArtefacts
+        ):
             _detect_children(child, child_detectors, artefact_detectors, endpoint)
         else:
             _detect_children(

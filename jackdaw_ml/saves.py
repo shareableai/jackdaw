@@ -57,7 +57,10 @@ def _saves(
     child_ids = {}
     for (child_name, child_interface) in model_children.items():
         child = access_interface.get_artefact(model_class, child_name)
-        if isinstance(child, SupportsArtefacts) and child_interface is DefaultAccessInterface:
+        if (
+            isinstance(child, SupportsArtefacts)
+            and child_interface is DefaultAccessInterface
+        ):
             child_ids[child_name] = _saves(
                 child, child.__artefact_endpoint__, artefact_detectors, child_detectors
             )

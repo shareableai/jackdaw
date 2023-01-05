@@ -1,10 +1,23 @@
-# Jackdaw ML - Simplify Sharing Model Ops
+# Jackdaw ML
 
-We found that most models in production aren't from a single framework - SKLearn, PyTorch, Paddle, etc. - they're from a combination. 
+Jackdaw is a framework designed to help Data Scientists save, load, and deploy Machine Learning models in a 
+simple and robust way.
 
-Preprocessing in SKLearn, then clustering with PyTorch, then prediction with LightGBM, every additional model adds complexity to organisation and slows down deployment.
+Unlike other frameworks, sharing a model only requires two short lines of code.
 
-Which is why we developed Jackdaw - a model framework that discovers the parts of a model that need saving, and leaves the rest to you.
+1. `@find_artefacts`
+    
+    Scan model code, finding model artefacts and variables. Jackdaw supports PyTorch, Tensorflow, XGBoost, and LightGBM
+    out of the box, but is trivial for users to expand to other frameworks.
+
+
+2. `jackdaw_ml.saves`
+    
+    Model artefacts are saved to either local or remote storage, and the user is provided with a Model ID. 
+    Users can store the ID for use in deployment, or search for the model by its name, metrics, Git branch, etc. 
+
+A Model can be as simple as a stored number, or as complex as a combination of frameworks. Regardless of complexity, 
+Jackdaw aims to make it simple to share your models with other applications, other colleagues, or other companies.
 
 Documentation is baked into the repository, and is available [here](docs). 
 
@@ -46,114 +59,40 @@ on a whole host of common frameworks. Combining the two is a powerful way of ens
 
 
 ```python
-import xgboost as xgb
-import numpy as np
-
-from jackdaw_ml.artefact_decorator import artefacts, find_artefacts
-from jackdaw_ml.child_architecture import ChildArchitecture
-
-from typing import Optional
-
-@find_artefacts()
-class MyXgbModel(ChildArchitecture):
-    def __init__(self) -> None:
-        self.xgb_model: Optional[xgb.Booster] = None
-    
-    def train(self, training_data: xgb.DMatrix) -> None:
-        self.xgb_model = xgb.train({}, training_data)
-        
-    def predict(self, data: xgb.DMatrix) -> np.ndarray:
-        return self.xgb_model.predict(data)
-
-@artefacts()
-class MyModel:
-    def __init__(self):
-        self.m1 = MyXgbModel()
-        self.m2 = MyXgbModel()
-
-    def evaluate(self, data: xgb.DMatrix):
-        return (self.m1.predict(data) + self.m2.predict(data)) / 2.0
-```
-
-```python
-from jackdaw_ml.artefact_decorator import artefacts
-from jackdaw_ml.serializers.pickle import PickleSerializer
-from jackdaw_ml.child_architecture import ChildArchitecture
-from jackdaw_ml.trace import trace_artefacts
-
-@artefacts({PickleSerializer: ["x"]})
-class MySubModel(ChildArchitecture):
-    def __init__(self):
-        self.x = 3
-
-
-@artefacts({})
-class MyModel:
-    def __init__(self):
-        self.y = MySubModel()
-
-# Create a new Model
-model = MyModel()
-# Modify the model
-model.y.x = 4
-# Save the model
-model_id = model.dumps()
-
-# # Current Artefacts on Model can be seen by calling `trace_artefacts`
-# >>> trace_artefacts(model)
-# <class '__main__.MyModel'>{
-#        (y) <class '__main__.MySubModel'>{
-#                (x) [<class 'jackdaw_ml.serializers.pickle.PickleSerializer'>]
-#        }
-#
-# MyModel holds a child model on attribute 'y' called MySubModel, which contains a PickleSerialize'd artefact on 
-#   attribute `x`
-
-# Create another model
-new_model = MyModel()
-new_model.y.z = 10
-# Load the model back in, using the Model ID
-new_model.loads(model_id)
-# New model is identical to the saved model
-assert new_model.y.x == 4
-# Non-artefacts aren't affected by `loads`
-assert new_model.y.z == 10
-```
-
-## Detection
-
-```python
-from jackdaw_ml.artefact_decorator import artefacts
-from jackdaw_ml.serializers.pickle import PickleSerializer
 from jackdaw_ml.artefact_decorator import find_artefacts
 from jackdaw_ml.trace import trace_artefacts
+from jackdaw_ml import saves
 
+import lightgbm as lgb
+import numpy as np
 
 @find_artefacts()
-class MyIntModel:
-    def __init__(self):
-        self.x = 3
+class BasicLGBWrapper:
+    model: lgb.Booster
 
+    
+# The LightGBM model is defined dynamically, so the Booster only exists after we call fit.
+# >>> trace_artefacts(BasicLGBWrapper())
+# <class 'frameworks.test_lightgbm.BasicLGBWrapper'>{}
 
-# As no automatic detectors exist for integers, `MyIntModel` shows no artefacts;
-trace_artefacts(MyIntModel())
-
-
-# >>> trace_artefacts(MyIntModel())
-# <class '__main__.MyIntModel'>{}
-
-@artefacts({PickleSerializer: ["x"]})
-class MyIntModel:
-    def __init__(self):
-        self.x = 3
-
+def example_data() -> lgb.Dataset:
+    data = np.random.rand(500, 10)  # 500 entities, each contains 10 features
+    label = np.random.randint(2, size=500)  # binary target
+    return lgb.Dataset(data, label=label)
 
 # Create a new Model
-model = MyIntModel()
+model = BasicLGBWrapper()
 # Modify the model
-model.y.x = 4
+model.model = lgb.train({}, example_data())
+
+# Model now has a defined artefact in the `model` slot
+# >>> trace_artefacts(model)
+# <class 'frameworks.test_lightgbm.BasicLGBWrapper'>{
+#	(model) [<class 'jackdaw_ml.serializers.pickle.PickleSerializer'>]
+# }
+
 # Save the model
-model_id = model.dumps()
+model_id = saves(model)
 ```
 
 

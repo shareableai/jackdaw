@@ -2,8 +2,6 @@ __all__ = ["TorchSeqDetector", "TorchDetector"]
 
 from typing import Dict, List, OrderedDict
 
-from torch.nn import ModuleList
-
 from jackdaw_ml.access_interface.list_interface import ListAccessInterface
 from jackdaw_ml.detectors import ChildDetector, ArtefactDetector
 from jackdaw_ml.access_interface import DictAccessInterface, DefaultAccessInterface

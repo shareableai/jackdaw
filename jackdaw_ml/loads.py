@@ -8,6 +8,7 @@ from jackdaw_ml.artefact_container import (
     SupportsArtefacts,
     _detect_children,
     _detect_artefacts,
+    _detect_artefact_annotations,
 )
 from jackdaw_ml.artefact_endpoint import ArtefactEndpoint
 from jackdaw_ml.detectors import Detector, ArtefactDetector, ChildDetector
@@ -43,6 +44,9 @@ def _loads(
             model_class, child_detectors, artefact_detectors, endpoint
         )
         detected_artefacts = _detect_artefacts(
+            model_class, set(model_children.keys()), artefact_detectors
+        )
+        detected_artefacts = detected_artefacts | _detect_artefact_annotations(
             model_class, set(model_children.keys()), artefact_detectors
         )
     elif isinstance(model_class, Tuple):
@@ -83,7 +87,10 @@ def _loads(
     for (child_name, child_interface) in model_children.items():
         child = access_interface.get_artefact(model_class, child_name)
         child_model_id = model_data.child_id_by_slot(child_name)
-        if isinstance(child, SupportsArtefacts) and child_interface is DefaultAccessInterface:
+        if (
+            isinstance(child, SupportsArtefacts)
+            and child_interface is DefaultAccessInterface
+        ):
             _loads(
                 child,
                 child_model_id,

@@ -7,8 +7,8 @@ import torch.optim as optim
 from torch.optim.lr_scheduler import StepLR
 from torchvision import datasets, transforms
 
-from jackdaw_ml.loads import loads
-from jackdaw_ml.saves import saves
+from jackdaw_ml import loads
+from jackdaw_ml import saves
 from tests.conftest import take_n
 
 from jackdaw_ml.artefact_decorator import artefacts
@@ -57,13 +57,14 @@ class NetSequential(nn.Module):
             nn.Flatten(1),
             nn.Dropout(0.5),
             nn.Linear(9216, 128),
-            nn.Linear(128, 10)
+            nn.Linear(128, 10),
         )
 
     def forward(self, x):
         x = self.model(x)
         output = F.log_softmax(x, dim=1)
         return output
+
 
 def train(model, device, train_loader, optimizer, epoch, log_interval=10):
     model.train()
@@ -156,7 +157,6 @@ def test_seq_save_load_pytorch_model():
 
     assert_model_equivalence(model, loaded_model)
     assert all([x == y for (x, y) in zip(loaded_model_predictions, test_predictions)])
-
 
 
 def test_save_load_pytorch_model():
