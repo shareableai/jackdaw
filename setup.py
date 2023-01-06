@@ -21,6 +21,7 @@ setup(
     license='LGPL-3.0-or-later',
     description="Share and Organise Machine Learning Models",
     long_description=open("README.md").read(),
+    long_description_content_type='text/markdown',
     classifiers=[
         'Development Status :: 3 - Alpha',
         'Intended Audience :: Developers',
