@@ -52,6 +52,12 @@ class DefaultDetectors:
             )
         except ImportError:
             pass
+        try:
+            from jackdaw_ml.detectors.sklearn import (
+                SKLearnDetector,
+            )
+        except ImportError:
+            pass
         return {
             detector: None
             for detector in (
