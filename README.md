@@ -71,9 +71,13 @@ class BasicLGBWrapper:
     model: lgb.Booster
 
     
-# The LightGBM model is defined dynamically, so the Booster only exists after we call fit.
+# The LightGBM model isn't defined yet, but we can discover it via annotations.
+#   LightGBM is Pickle-safe, so it's serialised via the PickleSerialiser by default.
 # >>> trace_artefacts(BasicLGBWrapper())
-# <class 'frameworks.test_lightgbm.BasicLGBWrapper'>{}
+# <class '__main__.BasicLGBWrapper'>{
+#         (model) [<class 'jackdaw_ml.serializers.pickle.PickleSerializer'>]
+# }
+
 
 def example_data() -> lgb.Dataset:
     data = np.random.rand(500, 10)  # 500 entities, each contains 10 features
@@ -84,12 +88,6 @@ def example_data() -> lgb.Dataset:
 model = BasicLGBWrapper()
 # Modify the model
 model.model = lgb.train({}, example_data())
-
-# Model now has a defined artefact in the `model` slot
-# >>> trace_artefacts(model)
-# <class 'frameworks.test_lightgbm.BasicLGBWrapper'>{
-#	(model) [<class 'jackdaw_ml.serializers.pickle.PickleSerializer'>]
-# }
 
 # Save the model
 model_id = saves(model)
