@@ -65,6 +65,10 @@ class ChildDetector:
             if isinstance(child_model_type, ChildModelDetector):
                 if child_model_type(item):
                     return DefaultAccessInterface
+            elif is_type(item, List[child_model_type]):
+                return ListAccessInterface
+            elif is_type(item, Set[child_model_type]):
+                raise NotImplementedError
             elif is_type(item, child_model_type):
                 return child_interface
         return None

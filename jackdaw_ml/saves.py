@@ -15,6 +15,7 @@ from jackdaw_ml.artefact_container import (
 from jackdaw_ml.artefact_endpoint import ArtefactEndpoint
 from jackdaw_ml.detectors import ArtefactDetector, ChildDetector
 from jackdaw_ml.serializers import Serializable
+from jackdaw_ml.trace import try_convert, sort_dict
 from jackdaw_ml.vcs import get_vcs_info
 
 T = TypeVar("T")
@@ -62,18 +63,24 @@ def _saves(
             and child_interface is DefaultAccessInterface
         ):
             child_ids[child_name] = _saves(
-                child, child.__artefact_endpoint__, artefact_detectors, child_detectors
+                child,
+                child.__artefact_endpoint__,
+                list(set(artefact_detectors) | child_interface.additional_detectors()),
+                child_detectors,
             )
         else:
             child_ids[child_name] = _saves(
-                (child, child_interface), endpoint, artefact_detectors, child_detectors
+                (child, child_interface),
+                endpoint,
+                list(set(artefact_detectors) | child_interface.additional_detectors()),
+                child_detectors,
             )
 
     with tempfile.TemporaryDirectory() as td:
         tempdir_path = pathlib.Path(td)
         local_artefact_files: List[LocalArtefactPath] = []
         for (artefact_name, serializer) in (
-            detected_artefacts | existing_artefacts
+            sort_dict(detected_artefacts | existing_artefacts)
         ).items():
             item = access_interface.get_artefact(model_class, artefact_name)
             filename = tempdir_path / f"{uuid4()}.artefact"
@@ -90,7 +97,40 @@ def _saves(
 
 
 def saves(model_class: SupportsArtefacts) -> PyModelID:
+    """Save a Jackdaw-Compatible Model
+
+    Saving a model allows the model to be restored later from an initialised class. In very simple code, this should
+    look like the following;
+
+    ```python
+    x = MyModel()
+    model_id = jackdaw_ml.saves(x)
+    y = MyModel()
+    jackdaw_ml.loads(y, model_id)
+    assert y == x
+    ```
+
+    Depending on the user setup, this will be saved locally (~/.artefact_storage by default), or remotely on ShareableAI
+    cloud. Metadata around the model will also be saved - either to a SQLite database (~/.artefact_registry.sqlite by
+    default) or remotely on ShareableAI Cloud.
+
+    You can query the SQLite database yourself to see what's saved if you'd like, but there's also tools like
+    [Corvus](https://github.com/shareableai/corvus) for a CLI, or the Search functionality within Jackdaw
+    (jackdaw_ml.search) to search the models programmatically.
+
+    Saving is performed by identifying the items on a class that are required for that model to function, and storing
+    the item itself in storage, and information about that item in the database. More information on that is available
+    in the [Jackdaw docs](https://github.com/shareableai/jackdaw/blob/main/docs/save.md)
+    """
     if isinstance(model_class, SupportsArtefacts):
+        for detector in model_class.__child_detectors__:
+            if interface := detector.get_child_interface(model_class) is not None:
+                return _saves(
+                    (model_class, interface),
+                    model_class.__artefact_endpoint__,
+                    model_class.__artefact_detectors__,
+                    model_class.__child_detectors__,
+                )
         return _saves(
             model_class,
             model_class.__artefact_endpoint__,

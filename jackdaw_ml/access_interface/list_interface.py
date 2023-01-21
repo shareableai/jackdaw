@@ -28,6 +28,9 @@ class ListAccessInterface(AccessInterface[List[T], T]):
 
     @classmethod
     def _set_item(cls, container: List[T], key: str, value: T) -> None:
+        index = cls.get_index(container, key)
+        if len(container) < index:
+            container += [None] * (index - len(container))
         container[cls.get_index(container, key)] = value
 
     @classmethod

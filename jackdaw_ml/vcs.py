@@ -32,15 +32,17 @@ def get_vcs_info(path=pathlib.Path.cwd(), parent_search: int = 0) -> PyVcsInfo:
     remote = next(map(lambda x: git_parse(str(x.url)), repo.remotes), None)
     try:
         return PyVcsInfo(
-            str(repo.commit("HEAD")),
-            PyRemoteRepository(remote.resource, remote.name, remote.owner)
+            sha=str(repo.commit("HEAD")),
+            branch=repo.active_branch.name,
+            remote=PyRemoteRepository(remote.resource, remote.name, remote.owner)
             if remote
             else None,
         )
     except BadName:
         return PyVcsInfo(
-            "DirtyHashState",
-            PyRemoteRepository(remote.resource, remote.name, remote.owner)
+            sha="DirtyHashState",
+            branch=repo.active_branch.name,
+            remote=PyRemoteRepository(remote.resource, remote.name, remote.owner)
             if remote
             else None,
         )

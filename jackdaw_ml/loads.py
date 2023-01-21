@@ -11,9 +11,10 @@ from jackdaw_ml.artefact_container import (
     _detect_artefact_annotations,
 )
 from jackdaw_ml.artefact_endpoint import ArtefactEndpoint
-from jackdaw_ml.detectors import Detector, ArtefactDetector, ChildDetector
+from jackdaw_ml.detectors import ArtefactDetector, ChildDetector
 from jackdaw_ml.resource import Resource
 from jackdaw_ml.serializers import Serializable
+from jackdaw_ml.trace import sort_dict
 
 T = TypeVar("T")
 LOGGER = logging.getLogger(__name__)
@@ -61,9 +62,21 @@ def _loads(
     else:
         raise ValueError
 
+    print(f"Loading Artefacts {model_data.artefact_slots()}")
+
     for (artefact_name, serializer) in (
-        detected_artefacts | existing_artefacts
+        sort_dict(detected_artefacts | existing_artefacts)
     ).items():
+        if artefact_name == '1':
+            print(f"LOADING {str(model_class.__class__)}")
+            print(serializer.from_resource(
+                uninitialised_item=access_interface.get_artefact(
+                    model_class, artefact_name
+                ),
+                buffer=Resource.from_artefact(
+                    model_data.artefact_by_slot(artefact_name)
+                ),
+            ))
         try:
             access_interface.set_artefact(
                 model_class,
@@ -84,6 +97,8 @@ def _loads(
             )
             pass
 
+    print(f"Initialising Children {model_children.items()}")
+
     for (child_name, child_interface) in model_children.items():
         child = access_interface.get_artefact(model_class, child_name)
         child_model_id = model_data.child_id_by_slot(child_name)
@@ -95,7 +110,7 @@ def _loads(
                 child,
                 child_model_id,
                 child.__artefact_endpoint__,
-                artefact_detectors,
+                list(set(artefact_detectors) | child_interface.additional_detectors()),
                 child_detectors,
             )
         else:
@@ -103,12 +118,20 @@ def _loads(
                 (child, child_interface),
                 child_model_id,
                 endpoint,
-                artefact_detectors,
+                list(set(artefact_detectors) | child_interface.additional_detectors()),
                 child_detectors,
             )
 
 
 def loads(model_class: SupportsArtefacts, model_id: PyModelID) -> None:
+    for detector in model_class.__child_detectors__:
+        if interface := detector.get_child_interface(model_class) is not None:
+            return _loads(
+                (model_class, interface),
+                model_class.__artefact_endpoint__,
+                model_class.__artefact_detectors__,
+                model_class.__child_detectors__,
+            )
     if isinstance(model_class, SupportsArtefacts):
         _loads(
             model_class,

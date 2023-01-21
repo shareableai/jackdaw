@@ -17,6 +17,7 @@ from typing import (
     TYPE_CHECKING,
     Type,
     Union,
+    Set,
 )
 
 C = TypeVar("C")
@@ -113,6 +114,10 @@ class AccessInterface(ABC, Generic[C, T]):
                     yield child_name, child_interface
                     # Break detection loop - move to next child_name
                     break
+
+    @classmethod
+    def additional_detectors(cls) -> Set[ArtefactDetector]:
+        return set()
 
     @classmethod
     def get_child(cls, model, child_name: str) -> "SupportsArtefacts":

@@ -25,7 +25,7 @@ class MyModel:
 
 def test_detection():
     m1 = MyModel()
-    m1.models = [1,1,1,1,1]
+    m1.models = [1, 1, 1, 1, 1]
     model_id = saves(m1)
     m2 = MyModel()
     loads(m2, model_id)

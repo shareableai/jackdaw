@@ -2,6 +2,8 @@ __all__ = ["SKLearnDetector"]
 
 import logging
 
+from jackdaw_ml.access_interface.sklearn_interface import SkLearnInterface
+
 LOGGER = logging.getLogger(__name__)
 
 try:
@@ -11,13 +13,17 @@ except ImportError:
         "Could not load Scikit-Learn required for SKLearnDetector - please ensure scikit-learn is installed."
     )
 
-from jackdaw_ml.detectors import ArtefactDetector
+from jackdaw_ml.detectors import ChildDetector
 from jackdaw_ml.detectors.hook import DefaultDetectors, DetectionLevel
-from jackdaw_ml.serializers.pickle import PickleSerializer
 
 
-SKLearnDetector = ArtefactDetector(
-    artefact_types={sklearn.base.BaseEstimator}, serializer=PickleSerializer
+"""
+    Typically frameworks don't get their own interfaces. 
+    SKLearn gets one because it reuses base Python so heavily it's hard to tell it apart from other items.
+"""
+
+SKLearnDetector = ChildDetector(
+    child_models={sklearn.base.BaseEstimator: SkLearnInterface}
 )
 
 

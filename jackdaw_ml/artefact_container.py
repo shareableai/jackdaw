@@ -110,6 +110,7 @@ def _detect_children(
         (model_class, access_interface) = model_class
     else:
         raise ValueError
+
     child_ids = dict(
         access_interface.list_children(model_class, child_detectors, artefact_detectors)
     )

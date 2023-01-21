@@ -82,6 +82,10 @@ class DefaultDetectors:
         except ImportError:
             pass
         try:
+            from jackdaw_ml.detectors.sklearn import SKLearnDetector
+        except ImportError:
+            pass
+        try:
             from jackdaw_ml.detectors.child_architecture_detector import (
                 ChildArchitectureDetector,
             )

@@ -3,7 +3,7 @@ from __future__ import annotations
 __all__ = ["Searcher"]
 
 from artefact_link import (
-    PyModelID,
+    PyModelSearchResult,
     PyRunID,
     PyVcsInfo,
     search_for_models,
@@ -78,9 +78,9 @@ class Searcher:
         .with_metric(">", "loss", 0.1)
         .metrics())
 
-    # Finding Models by Repo
+    # Finding Models by Repo and Branch
     Searcher(ArtefactEndpoint.default())
-        .with_repository("https://github.com/shareableai/jackdaw")
+        .with_repository("https://github.com/shareableai/jackdaw", "main")
         .models()
     ```
     """
@@ -92,12 +92,18 @@ class Searcher:
         self.metric_filters: Set[MetricFilter] = set()
         self.vcs_information: List[PyVcsInfo] = list()
         self.repository_name: Optional[str] = None
+        self.branch: Optional[str] = None
+        self.include_children: bool = False
 
     def with_name(self, name: Union[str, List[str]]) -> Searcher:
         if isinstance(name, str):
             self.names.add(name)
         else:
             self.names = self.names | set(name)
+        return self
+
+    def with_children(self) -> Searcher:
+        self.include_children = True
         return self
 
     def with_runs(self, run: Union[PyRunID, Set[PyRunID]]) -> Searcher:
@@ -107,12 +113,16 @@ class Searcher:
             self.runs = self.runs | set(run)
         return self
 
-    def with_repository(self, repository_name: str) -> Searcher:
+    def with_repository(
+        self, repository_name: str, branch: Optional[str] = None
+    ) -> Searcher:
         self.repository_name = repository_name
+        if branch is not None:
+            self.branch = branch
         return self
 
     def with_metric(
-            self, comparison: Union[Comparison, str], name: str, value: float
+        self, comparison: Union[Comparison, str], name: str, value: float
     ) -> Searcher:
         if isinstance(comparison, str):
             comparison = Comparison.from_str(comparison)
@@ -136,13 +146,13 @@ class Searcher:
             initial_metric = initial_metric.and_(metric)
         return initial_metric
 
-    def models(self) -> Set[PyModelID]:
+    def models(self) -> Set[PyModelSearchResult]:
         """
         Return a unique set of Models that match the search criteria
         """
         if self.repository_name is not None:
             vcs_ids: List[PyVcsID] = search_for_vcs_id(
-                self.endpoint.endpoint, self.repository_name
+                self.endpoint.endpoint, self.repository_name, self.branch
             )
         else:
             vcs_ids = list()
@@ -153,6 +163,7 @@ class Searcher:
                 runs=list(self.runs),
                 metric_filter=self._metric_filter(),
                 vcs_id=[x.id() for x in self.vcs_information] + vcs_ids,
+                include_children=self.include_children,
             )
         )
 

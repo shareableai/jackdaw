@@ -3,7 +3,7 @@ from typing import List, OrderedDict
 import torch
 import torch.nn as nn
 
-from jackdaw_ml.access_interface import DefaultAccessInterface, DictAccessInterface
+from jackdaw_ml.access_interface import DefaultAccessInterface
 from jackdaw_ml.access_interface.list_interface import ListAccessInterface
 from jackdaw_ml.artefact_container import SupportsArtefacts
 from jackdaw_ml.artefact_decorator import artefacts, _add_artefacts

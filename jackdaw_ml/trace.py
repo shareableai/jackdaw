@@ -22,8 +22,28 @@ def trace_artefacts(model_class: SupportsArtefacts):
     )
 
 
+def sort_dict(item: Dict[str, Any]) -> Dict[str, Any]:
+    sorted_keys = sorted(item.keys(), key=lambda x: try_convert(x))
+    return {
+        k: item[k] for k in sorted_keys
+    }
+
+
+def try_convert(index: str) -> Union[float, str, int]:
+    try:
+        return int(index)
+    except ValueError:
+        try:
+            return float(index)
+        except ValueError:
+            return index
+
+
 def _trace_artefacts(
-    model_class: Union[SupportsArtefacts, Tuple[Any, AccessInterface]], artefact_detectors, child_detectors, indent: int = 0
+        model_class: Union[SupportsArtefacts, Tuple[Any, AccessInterface]],
+        artefact_detectors,
+        child_detectors,
+        indent: int = 0,
 ):
     if isinstance(model_class, SupportsArtefacts):
         access_interface = DefaultAccessInterface
@@ -55,29 +75,40 @@ def _trace_artefacts(
 
     indentation = "\t" * (indent + 1)
     if (
-        len((detected_artefacts | existing_artefacts).keys()) == 0
-        and len(model_children.keys()) == 0
+            len((detected_artefacts | existing_artefacts).keys()) == 0
+            and len(model_children.keys()) == 0
     ):
         print(f"{model_class.__class__}" + "{}")
         return None
     if indent == 0:
         print(f"{model_class.__class__}" + "{")
     for (artefact_name, serializer) in (
-        detected_artefacts | existing_artefacts
+            sort_dict(detected_artefacts | existing_artefacts)
     ).items():
         print(f"{indentation}({artefact_name}) [{serializer}]")
     for (child_model_name, child_model_interface) in model_children.items():
         print(f"{indentation}({child_model_name})" + "{")
         child = access_interface.get_artefact(model_class, child_model_name)
         if (
-            isinstance(child, SupportsArtefacts)
-            and child_model_interface is DefaultAccessInterface
+                isinstance(child, SupportsArtefacts)
+                and child_model_interface is DefaultAccessInterface
         ):
-            _trace_artefacts(child, artefact_detectors, child_detectors, indent + 1)
+            _trace_artefacts(
+                child,
+                list(
+                    set(artefact_detectors)
+                    | child_model_interface.additional_detectors()
+                ),
+                child_detectors,
+                indent + 1,
+            )
         else:
             _trace_artefacts(
                 (child, child_model_interface),
-                artefact_detectors,
+                list(
+                    set(artefact_detectors)
+                    | child_model_interface.additional_detectors()
+                ),
                 child_detectors,
                 indent + 1,
             )
