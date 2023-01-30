@@ -146,6 +146,8 @@ class Searcher:
             vcs_ids: List[PyVcsID] = search_for_vcs_id(
                 self.endpoint.endpoint, self.repository_name, self.branch
             )
+            if len(vcs_ids) == 0:
+                return set()
         else:
             vcs_ids = list()
         return set(
