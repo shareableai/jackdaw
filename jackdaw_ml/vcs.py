@@ -45,3 +45,12 @@ def get_vcs_info(path=pathlib.Path.cwd(), parent_search: int = 0) -> PyVcsInfo:
             if remote
             else None,
         )
+    except TypeError:
+        # Detached HEAD State; https://github.com/gitpython-developers/GitPython/issues/633
+        return PyVcsInfo(
+            sha="DirtyHashState",
+            branch="DetachedHead",
+            remote=PyRemoteRepository(remote.resource, remote.name, remote.owner)
+            if remote
+            else None,
+        )
