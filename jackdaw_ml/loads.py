@@ -1,17 +1,14 @@
 import logging
-from typing import Union, Dict, Type, TypeVar, List, Tuple, Any
+from typing import Any, Dict, List, Tuple, Type, TypeVar, Union
 
 from artefact_link import PyModelID, load_model_data
 
 from jackdaw_ml.access_interface import AccessInterface, DefaultAccessInterface
-from jackdaw_ml.artefact_container import (
-    SupportsArtefacts,
-    _detect_children,
-    _detect_artefacts,
-    _detect_artefact_annotations,
-)
+from jackdaw_ml.artefact_container import (SupportsArtefacts,
+                                           _detect_artefact_annotations,
+                                           _detect_artefacts, _detect_children)
 from jackdaw_ml.artefact_endpoint import ArtefactEndpoint
-from jackdaw_ml.detectors import Detector, ArtefactDetector, ChildDetector
+from jackdaw_ml.detectors import ArtefactDetector, ChildDetector, Detector
 from jackdaw_ml.resource import Resource
 from jackdaw_ml.serializers import Serializable
 
@@ -78,10 +75,8 @@ def _loads(
                 ),
             )
         # TODO: Change from Runtime Error to custom missing artefact error
-        except RuntimeError:
-            LOGGER.error(
-                f"'{artefact_name}' was not found on save, but was detected on load"
-            )
+        except RuntimeError as e:
+            LOGGER.error(f"Failed to Load '{artefact_name}': {e}")
             pass
 
     for (child_name, child_interface) in model_children.items():
@@ -108,6 +103,8 @@ def _loads(
             )
 
 
+# TODO: Rename loads to load_model to make clearer from the loads module.
+# TODO: Add typing to loads function
 def loads(model_class: SupportsArtefacts, model_id: PyModelID) -> None:
     if isinstance(model_class, SupportsArtefacts):
         _loads(

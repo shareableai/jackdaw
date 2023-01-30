@@ -1,9 +1,8 @@
+import logging
 from functools import lru_cache
 
 import numpy as np
 import torch
-
-import logging
 
 logging.getLogger().setLevel(logging.WARN)
 
@@ -11,10 +10,9 @@ from darts import TimeSeries
 from darts.datasets import AirPassengersDataset
 from darts.models import TransformerModel
 
+from jackdaw_ml import loads, saves
 from jackdaw_ml.artefact_decorator import artefacts
-from jackdaw_ml import loads
 from jackdaw_ml.detectors.torch import TorchDetector, TorchSeqDetector
-from jackdaw_ml import saves
 
 # As the class already exists, we can just add artefacts to it and rename it
 TransformerModelWithArtefacts = artefacts(

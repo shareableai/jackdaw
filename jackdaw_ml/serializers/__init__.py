@@ -2,7 +2,7 @@ __all__ = ["Serializable"]
 
 import pathlib
 from abc import abstractmethod
-from typing import Generic, TypeVar, Optional
+from typing import Generic, Optional, TypeVar
 
 from jackdaw_ml.resource import Resource
 

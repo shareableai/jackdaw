@@ -1,12 +1,12 @@
 from functools import lru_cache
+from typing import Tuple
 
 import numpy as np
-from typing import Tuple
 from sklearn.ensemble import IsolationForest
 from sklearn.preprocessing import StandardScaler
+
+from jackdaw_ml import loads, saves
 from jackdaw_ml.artefact_decorator import artefacts
-from jackdaw_ml import loads
-from jackdaw_ml import saves
 from jackdaw_ml.serializers.pickle import PickleSerializer
 
 

@@ -2,7 +2,6 @@ import logging
 import os
 from typing import *
 
-
 from jackdaw_ml.artefact_endpoint import ArtefactEndpoint
 
 FORMAT = "%(levelname)s %(name)s %(asctime)-15s %(filename)s:%(lineno)d %(message)s"

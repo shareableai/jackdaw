@@ -1,8 +1,7 @@
 import pytest
 from pytest_lazyfixture import lazy_fixture
 
-from jackdaw_ml import loads
-from jackdaw_ml import saves
+from jackdaw_ml import loads, saves
 
 
 @pytest.mark.remote

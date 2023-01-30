@@ -1,6 +1,7 @@
 __all__ = ["MetricLogger"]
 
 import datetime
+from typing import List, Tuple
 from uuid import UUID
 
 from artefact_link import PyModelRun
@@ -8,8 +9,6 @@ from artefact_link import PyModelRun
 from jackdaw_ml.artefact_endpoint import ArtefactEndpoint
 from jackdaw_ml.run_id import RunID
 from jackdaw_ml.vcs import get_vcs_info
-
-from typing import List, Tuple
 
 
 class MetricQueue:

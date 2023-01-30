@@ -1,13 +1,11 @@
 import json
-
-import numpy as np
-import lightgbm as lgb
-
-from jackdaw_ml.artefact_decorator import find_artefacts
-from jackdaw_ml import loads
-from jackdaw_ml import saves
-
 from functools import lru_cache
+
+import lightgbm as lgb
+import numpy as np
+
+from jackdaw_ml import loads, saves
+from jackdaw_ml.artefact_decorator import find_artefacts
 
 
 @find_artefacts()

@@ -7,11 +7,9 @@ import torch.optim as optim
 from torch.optim.lr_scheduler import StepLR
 from torchvision import datasets, transforms
 
-from jackdaw_ml import loads
-from jackdaw_ml import saves
-from tests.conftest import take_n
-
+from jackdaw_ml import loads, saves
 from jackdaw_ml.artefact_decorator import artefacts
+from tests.conftest import take_n
 
 torch.manual_seed(0)
 torch.backends.cudnn.benchmark = False

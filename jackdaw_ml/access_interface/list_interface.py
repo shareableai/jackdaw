@@ -1,11 +1,10 @@
 __all__ = ["ListAccessInterface"]
 
+import logging
 from abc import abstractmethod
+from typing import Dict, List, TypeVar
 
 from jackdaw_ml.access_interface import AccessInterface
-
-import logging
-from typing import TypeVar, Dict, List
 
 C = TypeVar("C")
 T = TypeVar("T")

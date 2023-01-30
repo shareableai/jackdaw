@@ -3,15 +3,15 @@ from typing import List, OrderedDict
 import torch
 import torch.nn as nn
 
-from jackdaw_ml.access_interface import DefaultAccessInterface, DictAccessInterface
+from jackdaw_ml import loads, saves
+from jackdaw_ml.access_interface import (DefaultAccessInterface,
+                                         DictAccessInterface)
 from jackdaw_ml.access_interface.list_interface import ListAccessInterface
 from jackdaw_ml.artefact_container import SupportsArtefacts
-from jackdaw_ml.artefact_decorator import artefacts, _add_artefacts
+from jackdaw_ml.artefact_decorator import _add_artefacts, artefacts
 from jackdaw_ml.artefact_endpoint import ArtefactEndpoint
 from jackdaw_ml.detectors import is_type
 from jackdaw_ml.detectors.hook import DefaultDetectors
-from jackdaw_ml import loads
-from jackdaw_ml import saves
 
 
 @artefacts({})

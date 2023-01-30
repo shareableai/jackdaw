@@ -1,23 +1,13 @@
 from __future__ import annotations
 
-__all__ = ["artefacts", "find_artefacts"]
+__all__ = ["artefacts", "find_artefacts", "format_class_name"]
 
 import logging
-
 from functools import partial
-from typing import (
-    Type,
-    List,
-    Dict,
-    Union,
-    Callable,
-    TypeVar,
-    TYPE_CHECKING,
-)
+from typing import TYPE_CHECKING, Callable, Dict, List, Type, TypeVar, Union
 from uuid import uuid4
 
 from jackdaw_ml.artefact_endpoint import ArtefactEndpoint
-
 from jackdaw_ml.detectors.hook import DefaultDetectors
 from jackdaw_ml.metric_logging import MetricLogger
 from jackdaw_ml.serializers import Serializable
@@ -26,9 +16,12 @@ T = TypeVar("T")
 LOGGER = logging.getLogger(__name__)
 LOGGER.setLevel("INFO")
 
-
 if TYPE_CHECKING:
     from jackdaw_ml.detectors import ArtefactDetector, ChildDetector
+
+
+def format_class_name(class_name: str) -> str:
+    return class_name.replace("<class '", "").replace("'>", "").split(".")[-1]
 
 
 def _add_artefacts(
@@ -66,7 +59,7 @@ def _add_artefacts(
     if child_detectors is None:
         child_detectors = list()
     if name is None:
-        name = str(cls)
+        name = format_class_name(str(cls))
     setattr(cls, "__model_name__", name)
 
     if (
@@ -164,6 +157,7 @@ def artefacts(
     return artefact_decorator
 
 
+# TODO: Change from being a partial to full function, as otherwise it's missing useful documentation.
 find_artefacts = partial(
     artefacts, artefact_serializers={}, artefact_detectors=None, child_detectors=None
 )

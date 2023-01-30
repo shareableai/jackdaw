@@ -3,29 +3,16 @@ from __future__ import annotations
 __all__ = ["SupportsArtefacts"]
 
 import logging
-
-from typing import (
-    Type,
-    List,
-    Dict,
-    Any,
-    Protocol,
-    runtime_checkable,
-    TYPE_CHECKING,
-    Union,
-    Tuple,
-    Set,
-)
-
-from jackdaw_ml.artefact_decorator import _add_artefacts
-from jackdaw_ml.artefact_endpoint import ArtefactEndpoint
-
-from jackdaw_ml.serializers import Serializable
+from typing import (TYPE_CHECKING, Any, Dict, List, Protocol, Set, Tuple, Type,
+                    Union, runtime_checkable)
 
 from jackdaw_ml.access_interface import AccessInterface, DefaultAccessInterface
+from jackdaw_ml.artefact_decorator import _add_artefacts
+from jackdaw_ml.artefact_endpoint import ArtefactEndpoint
+from jackdaw_ml.serializers import Serializable
 
 if TYPE_CHECKING:
-    from jackdaw_ml.detectors import ChildDetector, ArtefactDetector
+    from jackdaw_ml.detectors import ArtefactDetector, ChildDetector
 
 LOGGER = logging.getLogger(__name__)
 

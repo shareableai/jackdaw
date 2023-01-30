@@ -1,6 +1,5 @@
 import tensorflow as tf
 
-
 from jackdaw_ml.access_interface import DefaultAccessInterface
 from jackdaw_ml.artefact_decorator import _add_artefacts
 from jackdaw_ml.artefact_endpoint import ArtefactEndpoint

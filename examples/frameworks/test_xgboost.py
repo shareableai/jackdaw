@@ -1,14 +1,12 @@
 import tempfile
+from functools import lru_cache
 
 import numpy as np
 import xgboost as xgb
 
+from jackdaw_ml import loads, saves
 from jackdaw_ml.artefact_decorator import artefacts
-from jackdaw_ml import loads
-from jackdaw_ml import saves
 from jackdaw_ml.serializers.pickle import PickleSerializer
-
-from functools import lru_cache
 
 
 @artefacts({PickleSerializer: ["model"]})

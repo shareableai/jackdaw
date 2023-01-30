@@ -1,13 +1,11 @@
-import tensorflow as tf
-import numpy as np
-
-from jackdaw_ml.artefact_decorator import artefacts
-
 from functools import lru_cache
 from typing import Tuple
 
-from jackdaw_ml import loads
-from jackdaw_ml import saves
+import numpy as np
+import tensorflow as tf
+
+from jackdaw_ml import loads, saves
+from jackdaw_ml.artefact_decorator import artefacts
 
 mnist = tf.keras.datasets.mnist
 

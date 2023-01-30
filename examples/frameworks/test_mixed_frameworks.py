@@ -1,14 +1,13 @@
 from functools import lru_cache
+from typing import Tuple
 
 import numpy as np
-from typing import Tuple
-from sklearn.preprocessing import StandardScaler
-from jackdaw_ml.artefact_decorator import artefacts
 import tensorflow as tf
+from sklearn.preprocessing import StandardScaler
 
+from jackdaw_ml import loads, saves
+from jackdaw_ml.artefact_decorator import artefacts
 from jackdaw_ml.detectors.hook import DefaultDetectors
-from jackdaw_ml import loads
-from jackdaw_ml import saves
 from jackdaw_ml.serializers.pickle import PickleSerializer
 
 mnist = tf.keras.datasets.mnist

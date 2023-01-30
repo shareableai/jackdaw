@@ -1,8 +1,9 @@
 __all__ = ["Detector"]
 
-from dataclasses import dataclass
 from collections import OrderedDict
-from typing import Set, TypeVar, Type, Generic, Any, Optional, Union, List, Dict
+from dataclasses import dataclass
+from typing import (Any, Dict, Generic, List, Optional, Set, Type, TypeVar,
+                    Union)
 
 from jackdaw_ml.access_interface.list_interface import ListAccessInterface
 from jackdaw_ml.detectors.class_detector import ChildModelDetector
@@ -10,11 +11,9 @@ from jackdaw_ml.serializers import Serializable
 
 T = TypeVar("T")
 
-from jackdaw_ml.access_interface import (
-    AccessInterface,
-    DefaultAccessInterface,
-    DictAccessInterface,
-)
+from jackdaw_ml.access_interface import (AccessInterface,
+                                         DefaultAccessInterface,
+                                         DictAccessInterface)
 
 
 def _get_origin(obj: object) -> Optional[object]:

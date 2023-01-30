@@ -1,10 +1,9 @@
 import random
-
 from typing import List
 
+from jackdaw_ml import loads, saves
 from jackdaw_ml.artefact_decorator import artefacts
 from jackdaw_ml.detectors import ArtefactDetector
-from jackdaw_ml import saves, loads
 from jackdaw_ml.serializers.pickle import PickleSerializer
 
 IntDetector = ArtefactDetector(

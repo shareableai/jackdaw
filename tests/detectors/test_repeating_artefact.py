@@ -1,11 +1,9 @@
 import random
-
 from typing import List
 
+from jackdaw_ml import loads, saves
 from jackdaw_ml.artefact_decorator import artefacts
 from jackdaw_ml.detectors import ArtefactDetector
-from jackdaw_ml import loads
-from jackdaw_ml import saves
 from jackdaw_ml.serializers.pickle import PickleSerializer
 
 IntDetector = ArtefactDetector(
@@ -25,7 +23,7 @@ class MyModel:
 
 def test_detection():
     m1 = MyModel()
-    m1.models = [1,1,1,1,1]
+    m1.models = [1, 1, 1, 1, 1]
     model_id = saves(m1)
     m2 = MyModel()
     loads(m2, model_id)

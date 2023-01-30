@@ -1,13 +1,11 @@
-import numpy as np
+from typing import Optional, TypeVar
 
+import numpy as np
 import pyarrow as pa  # type: ignore
 import tensorflow as tf
 
 from jackdaw_ml.resource import Resource
 from jackdaw_ml.serializers import Serializable
-
-from typing import TypeVar, Optional
-
 from jackdaw_ml.serializers.tensor import TensorSerializer
 
 T = TypeVar("T")

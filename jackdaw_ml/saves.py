@@ -1,17 +1,15 @@
 import logging
 import pathlib
 import tempfile
-from typing import Union, Dict, Type, TypeVar, List, Tuple, Any
+from typing import Any, Dict, List, Tuple, Type, TypeVar, Union
 from uuid import uuid4
 
-from artefact_link import PyModelID, LocalArtefactPath, ModelData
+from artefact_link import LocalArtefactPath, ModelData, PyModelID
 
 from jackdaw_ml.access_interface import AccessInterface, DefaultAccessInterface
-from jackdaw_ml.artefact_container import (
-    SupportsArtefacts,
-    _detect_children,
-    _detect_artefacts,
-)
+from jackdaw_ml.artefact_container import (SupportsArtefacts,
+                                           _detect_artefacts, _detect_children)
+from jackdaw_ml.artefact_decorator import format_class_name
 from jackdaw_ml.artefact_endpoint import ArtefactEndpoint
 from jackdaw_ml.detectors import ArtefactDetector, ChildDetector
 from jackdaw_ml.serializers import Serializable
@@ -81,7 +79,9 @@ def _saves(
                 LocalArtefactPath(artefact_name, serializer.to_file(item, filename))
             )
         model = ModelData(
-            name=str(model_class.__class__),
+            name=getattr(
+                model_class, "__name__", format_class_name(str(model_class.__class__))
+            ),
             vcs_info=get_vcs_info(),
             local_artefacts=local_artefact_files,
             children=child_ids,

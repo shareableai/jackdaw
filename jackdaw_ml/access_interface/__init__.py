@@ -5,19 +5,8 @@ __all__ = ["AccessInterface", "DefaultAccessInterface", "DictAccessInterface"]
 import inspect
 import logging
 from abc import ABC
-from typing import (
-    Generic,
-    TypeVar,
-    List,
-    Dict,
-    Optional,
-    Any,
-    Tuple,
-    Iterable,
-    TYPE_CHECKING,
-    Type,
-    Union,
-)
+from typing import (TYPE_CHECKING, Any, Dict, Generic, Iterable, List,
+                    Optional, Tuple, Type, TypeVar, Union)
 
 C = TypeVar("C")
 T = TypeVar("T")
@@ -26,12 +15,9 @@ logger = logging.getLogger(__name__)
 
 
 if TYPE_CHECKING:
-    from jackdaw_ml.detectors import (
-        Serializable,
-        ChildDetector,
-        ArtefactDetector,
-    )
     from jackdaw_ml.artefact_container import SupportsArtefacts
+    from jackdaw_ml.detectors import (ArtefactDetector, ChildDetector,
+                                      Serializable)
 
 
 class AccessInterface(ABC, Generic[C, T]):

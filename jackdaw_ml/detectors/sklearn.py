@@ -15,7 +15,6 @@ from jackdaw_ml.detectors import ArtefactDetector
 from jackdaw_ml.detectors.hook import DefaultDetectors, DetectionLevel
 from jackdaw_ml.serializers.pickle import PickleSerializer
 
-
 SKLearnDetector = ArtefactDetector(
     artefact_types={sklearn.base.BaseEstimator}, serializer=PickleSerializer
 )

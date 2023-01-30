@@ -1,5 +1,5 @@
-from typing import Optional
 from multiprocessing import current_process
+from typing import Optional
 
 from artefact_link import PyRunID
 

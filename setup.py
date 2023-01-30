@@ -14,21 +14,21 @@ LIBRARIES = [*requirements, *dev_requirements]
 
 setup(
     name="jackdaw_ml",
-    version="0.0.3",
+    version="0.0.4",
     packages=find_packages(),
     install_requires=requirements,
     extras_require={"dev": dev_requirements + requirements, "all": LIBRARIES},
-    license='LGPL-3.0-or-later',
+    license="LGPL-3.0-or-later",
     description="Share and Organise Machine Learning Models",
     long_description=open("README.md").read(),
-    long_description_content_type='text/markdown',
+    long_description_content_type="text/markdown",
     classifiers=[
-        'Development Status :: 3 - Alpha',
-        'Intended Audience :: Developers',
-        'License :: OSI Approved :: GNU Lesser General Public License v3 or later (LGPLv3+)',
-        'Programming Language :: Python :: 3.8',
-        'Programming Language :: Python :: 3.9',
-        'Programming Language :: Python :: 3.10',
-        'Topic :: Scientific/Engineering :: Artificial Intelligence'
-    ]
+        "Development Status :: 3 - Alpha",
+        "Intended Audience :: Developers",
+        "License :: OSI Approved :: GNU Lesser General Public License v3 or later (LGPLv3+)",
+        "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3.9",
+        "Programming Language :: Python :: 3.10",
+        "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    ],
 )

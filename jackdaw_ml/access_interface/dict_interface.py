@@ -1,9 +1,9 @@
 __all__ = ["DictAccessInterface"]
 
-from jackdaw_ml.access_interface import AccessInterface
-
 import logging
-from typing import TypeVar, Dict
+from typing import Dict, TypeVar
+
+from jackdaw_ml.access_interface import AccessInterface
 
 C = TypeVar("C")
 T = TypeVar("T")

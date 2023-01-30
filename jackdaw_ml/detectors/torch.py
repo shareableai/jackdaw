@@ -2,13 +2,14 @@ __all__ = ["TorchSeqDetector", "TorchDetector"]
 
 from typing import Dict, List, OrderedDict
 
+import torch.nn as nn
+
+from jackdaw_ml.access_interface import (DefaultAccessInterface,
+                                         DictAccessInterface)
 from jackdaw_ml.access_interface.list_interface import ListAccessInterface
-from jackdaw_ml.detectors import ChildDetector, ArtefactDetector
-from jackdaw_ml.access_interface import DictAccessInterface, DefaultAccessInterface
+from jackdaw_ml.detectors import ArtefactDetector, ChildDetector
 from jackdaw_ml.detectors.hook import DefaultDetectors, DetectionLevel
 from jackdaw_ml.serializers.tensor import TorchSerializer
-
-import torch.nn as nn
 
 TorchSeqDetector = ChildDetector(
     child_models={

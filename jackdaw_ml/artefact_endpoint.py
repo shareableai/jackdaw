@@ -5,7 +5,8 @@ __all__ = ["ArtefactEndpoint"]
 from dataclasses import dataclass
 from typing import Union
 
-from artefact_link import LocalEndpoint, ShareableAIEndpoint, LocalArtefactRegistry
+from artefact_link import (LocalArtefactRegistry, LocalEndpoint,
+                           ShareableAIEndpoint)
 
 
 @dataclass

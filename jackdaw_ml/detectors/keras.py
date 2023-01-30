@@ -1,15 +1,15 @@
 __all__ = ["KerasSeqDetector", "KerasArtefactDetector"]
 
+from typing import List
+
 import keras
 import tensorflow as tf
 
-from jackdaw_ml.access_interface.list_interface import ListAccessInterface
-from jackdaw_ml.detectors import Detector, ChildDetector, ArtefactDetector
 from jackdaw_ml.access_interface import AccessInterface, DefaultAccessInterface
+from jackdaw_ml.access_interface.list_interface import ListAccessInterface
+from jackdaw_ml.detectors import ArtefactDetector, ChildDetector
 from jackdaw_ml.detectors.hook import DefaultDetectors, DetectionLevel
 from jackdaw_ml.serializers.keras import KerasSerializer
-
-from typing import List, Dict
 
 
 class KerasLayerAccessInterface(

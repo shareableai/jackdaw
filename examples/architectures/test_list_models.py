@@ -1,16 +1,13 @@
 import tempfile
-from typing import Optional, List
+from functools import lru_cache
+from typing import List, Optional
 
 import numpy as np
 import xgboost as xgb
 
+from jackdaw_ml import loads, saves
 from jackdaw_ml.artefact_decorator import artefacts, find_artefacts
 from jackdaw_ml.child_architecture import ChildArchitecture
-
-from functools import lru_cache
-
-from jackdaw_ml import loads
-from jackdaw_ml import saves
 from jackdaw_ml.serializers.pickle import PickleSerializer
 
 

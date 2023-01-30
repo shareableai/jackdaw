@@ -6,7 +6,7 @@ import pathlib
 import tempfile
 from hashlib import md5
 from io import BytesIO
-from typing import SupportsBytes, Union, Optional
+from typing import Optional, SupportsBytes, Union
 
 from artefact_link import PyArtefact
 

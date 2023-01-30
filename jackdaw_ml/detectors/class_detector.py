@@ -1,7 +1,7 @@
 __all__ = ["ChildModelDetector"]
 
-from abc import abstractmethod, ABCMeta
-from typing import Type, Any
+from abc import ABCMeta, abstractmethod
+from typing import Any, Type
 
 
 class ChildModelDetector(metaclass=ABCMeta):

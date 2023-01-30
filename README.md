@@ -21,6 +21,9 @@ Jackdaw aims to make it simple to share your models with other applications, oth
 
 Documentation is baked into the repository, and is available [here](docs). 
 
+![Example of Save & Load of a PyTorch model via Jackdaw](docs/visuals/JackdawSaveLoad.gif)
+
+
 ## Setup - Working Locally
 Jackdaw is available on [PyPi](https://pypi.org/project/jackdaw-ml/) and can be installed via pip;
 

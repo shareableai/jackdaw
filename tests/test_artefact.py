@@ -1,10 +1,9 @@
 import pytest
 
+from jackdaw_ml import loads, saves
 from jackdaw_ml.artefact_container import ArtefactNotFound, SupportsArtefacts
 from jackdaw_ml.artefact_decorator import artefacts
-from jackdaw_ml import loads
 from jackdaw_ml.serializers.pickle import PickleSerializer
-from jackdaw_ml import saves
 
 
 @pytest.mark.local

@@ -1,7 +1,7 @@
 __all__ = ["PickleSerializer"]
 
 import pickle
-from typing import TypeVar, Optional
+from typing import Optional, TypeVar
 
 from jackdaw_ml.resource import Resource
 from jackdaw_ml.serializers import Serializable

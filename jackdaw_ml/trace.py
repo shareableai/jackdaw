@@ -1,12 +1,9 @@
-from typing import Dict, Type, Tuple, Union, Any
+from typing import Any, Dict, Tuple, Type, Union
 
-from jackdaw_ml.access_interface import DefaultAccessInterface, AccessInterface
-from jackdaw_ml.artefact_container import (
-    SupportsArtefacts,
-    _detect_children,
-    _detect_artefacts,
-    _detect_artefact_annotations,
-)
+from jackdaw_ml.access_interface import AccessInterface, DefaultAccessInterface
+from jackdaw_ml.artefact_container import (SupportsArtefacts,
+                                           _detect_artefact_annotations,
+                                           _detect_artefacts, _detect_children)
 from jackdaw_ml.detectors.hook import DefaultDetectors
 from jackdaw_ml.serializers import Serializable
 
@@ -23,7 +20,10 @@ def trace_artefacts(model_class: SupportsArtefacts):
 
 
 def _trace_artefacts(
-    model_class: Union[SupportsArtefacts, Tuple[Any, AccessInterface]], artefact_detectors, child_detectors, indent: int = 0
+    model_class: Union[SupportsArtefacts, Tuple[Any, AccessInterface]],
+    artefact_detectors,
+    child_detectors,
+    indent: int = 0,
 ):
     if isinstance(model_class, SupportsArtefacts):
         access_interface = DefaultAccessInterface
