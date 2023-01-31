@@ -18,13 +18,13 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install wheel
-          pip install ".[all]"
+          pip install wheel setuptools poetry
+          poetry install --with dev
       - name: Test with pytest
         env:
           SHAREABLEAI_TEST_API_KEY: ${{ secrets.SHAREABLEAI_TEST_API_KEY }}
         run: |
-          pytest
+          poetry run pytest
           
   publish:
     needs: test
