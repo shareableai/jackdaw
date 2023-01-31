@@ -45,12 +45,10 @@ jobs:
         run: |
          python -m pip install --upgrade pip
          python -m pip install --upgrade setuptools wheel
-         pip install .
+         poetry install
       - name: Upload to PyPi
         env:
          TWINE_USERNAME: '__token__'
          TWINE_PASSWORD: ${{ secrets.PYPI_API_TOKEN }}
         run: |
-         python setup.py bdist_wheel
-         pip install -U twine
-         twine upload -u $TWINE_USERNAME -p $TWINE_PASSWORD **/*.whl
+         poetry publish --build -u $TWINE_USERNAME -p $TWINE_PASSWORD

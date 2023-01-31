@@ -1,0 +1,37 @@
+[tool.poetry]
+name = "jackdaw-ml"
+version = "0.0.5"
+description = "Share and Organise Machine Learning Models"
+authors = ["Lissa Hyacinth <lissa@shareableai.com>"]
+license = "LGPL-3.0-or-later"
+readme = "README.md"
+packages = [{include = "jackdaw_ml"}]
+
+[tool.poetry.dependencies]
+python = ">=3.10,<3.12"
+pyarrow = ">=9,<10"
+gitpython = ">=3,<4"
+giturlparse = ">=0,<1"
+urllib3 = ">=1,<2"
+
+[tool.poetry.dev-dependencies]
+black = "*"
+pytest = "*"
+pytest-env = "*"
+pytest-cov = "*"
+pytest-lazy-fixture = "*"
+coverage = "*"
+scikit-learn = "*"
+torch = "*"
+pytorch-lightning = "*"
+torchvision = "*"
+torch-geometric = "*"
+lightgbm = "*"
+xgboost = "*"
+tensorflow-cpu = ">=2.11.0"
+darts = "*"
+numba = ">=0.56"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
