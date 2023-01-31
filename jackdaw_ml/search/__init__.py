@@ -8,7 +8,10 @@ from typing import Dict, List, Set, Union
 
 from artefact_link import (PyMetricFilter, PyModelSearchResult, PyRunID,
                            PyVcsID, PyVcsInfo, search_for_models,
-                           search_for_vcs_id)
+                           search_for_vcs_id, PyRemoteRepository)
+
+from jackdaw_ml.artefact_decorator import format_class_name
+from jackdaw_ml.vcs import get_vcs_info
 
 
 class Comparison(Enum):
@@ -94,12 +97,24 @@ class Searcher:
             self.names = self.names | set(name)
         return self
 
+    def with_model_name(self, model: object) -> Searcher:
+        return self.with_name(format_class_name(str(model)))
+
+    def with_current_repository(self, branch: Optional[str]) -> Searcher:
+        current_vcs = get_vcs_info()
+        remote: Optional[PyRemoteRepository] = current_vcs.remote_repository
+        repository_name = remote.repository if remote is not None else '%'  # wildcard in search
+        return self.with_repository(
+            repository_name=repository_name,
+            branch=current_vcs.branch if branch is None else branch
+        )
+
     def with_children(self) -> Searcher:
         self.include_children = True
         return self
 
     def with_runs(self, run: Union[PyRunID, Set[PyRunID]]) -> Searcher:
-        if isinstance(run, str):
+        if isinstance(run, PyRunID):
             self.runs.add(run)
         else:
             self.runs = self.runs | set(run)
