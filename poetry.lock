@@ -71,6 +71,21 @@ yarl = ">=1.0,<2.0"
 speedups = ["aiodns", "brotlipy", "cchardet"]
 
 [[package]]
+name = "artefactlink"
+version = "0.4.1"
+description = ""
+category = "main"
+optional = false
+python-versions = ">=3.6"
+files = [
+    {file = "artefactlink-0.4.1-cp310-cp310-macosx_10_7_x86_64.whl", hash = "sha256:f2175af3e397b461c2755aca7f956a9641d980a7c0b4e3b3309d270d4fca2611"},
+    {file = "artefactlink-0.4.1-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:3a76db9d461beafa53a8fa608f77d84126c62a6b81b62a88b164f81e6700113f"},
+    {file = "artefactlink-0.4.1-cp310-none-win_amd64.whl", hash = "sha256:50b563679f7a85d067d2e411440a7696d103cef50afd77433b7d9fba0b525491"},
+    {file = "artefactlink-0.4.1-cp38-cp38-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:7b86e37c09ce88169fece8e8b9d2167049047eda97821ecce9618467df97d6dc"},
+    {file = "artefactlink-0.4.1-cp39-cp39-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:f57f5ac9df8cd90650832da3a41b23f4377df5252537d3a59e4564da4d72bdee"},
+]
+
+[[package]]
 name = "astunparse"
 version = "1.6.3"
 description = "An AST unparser for Python"
@@ -3407,4 +3422,4 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.10,<3.12"
-content-hash = "35badec8df0e05b68a0f80486ba9d00290f0d880dbfc870360eaaa48f8fc1254"
+content-hash = "e9774cc529fc93befd95830c985f3c7e86ca64c425cd0dc5ced609f2d3847f3f"

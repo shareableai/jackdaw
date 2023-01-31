@@ -13,6 +13,7 @@ pyarrow = ">=9,<10"
 gitpython = ">=3,<4"
 giturlparse = ">=0,<1"
 urllib3 = ">=1,<2"
+artefactlink = ">=0.4.1"
 
 [tool.poetry.dev-dependencies]
 black = "*"
