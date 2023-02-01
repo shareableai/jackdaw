@@ -200,7 +200,7 @@ def lookup_model_id(
     return search_by_model_id(
         ArtefactEndpoint.default().endpoint
         if api_key is None
-        else ArtefactEndpoint.remote(api_key),
+        else ArtefactEndpoint.remote(api_key).endpoint,
         short_vcs_hash,
         PyShortArtefactSchemaID.from_str(short_artefact_schema_id),
         model_name,

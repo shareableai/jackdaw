@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "jackdaw-ml"
-version = "0.0.6"
+version = "0.0.7"
 description = "Share and Organise Machine Learning Models"
 authors = ["Lissa Hyacinth <lissa@shareableai.com>"]
 license = "LGPL-3.0-or-later"
